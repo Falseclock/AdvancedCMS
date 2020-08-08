@@ -1,0 +1,34 @@
+{
+  "name": "falselock/cms-editor",
+  "description": "A PHP Library that allows you to manupilate CMS.",
+  "type": "library",
+  "homepage": "https://github.com/Falseclock/CMS-EDITOR",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Nurlan Mukhanov",
+      "email": "nurike@gmail.com",
+      "homepage": "https://github.com/Falseclock",
+      "role": "Author"
+    }
+  ],
+  "keywords": [ "cms", "pkcs7", "cades", "x690", "asn1", "asn.1", "ber", "der", "binary", "encoding", "decoding" ],
+
+  "require": {
+    "php": ">=7.0",
+    "adapik/phpasn1": "^2.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6.2",
+  },
+  "autoload": {
+    "psr-4": {
+      "Falseclock\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Falseclock\\Test\\": "tests/"
+    }
+  }
+}
