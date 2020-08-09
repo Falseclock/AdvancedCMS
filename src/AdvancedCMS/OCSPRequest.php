@@ -80,7 +80,7 @@ class OCSPRequest extends Request
                                                 # algorithm
                                                 ObjectIdentifier::create($hashAlgorithmOID),
                                                 # parameters
-                                                NullObject::create(),
+                                                NullObject::create()
                                             ]
                                         ),
                                         # issuerNameHash
@@ -88,12 +88,12 @@ class OCSPRequest extends Request
                                         # issuerKeyHash
                                         OctetString::createFromString($intermediateCertificate->getKeyHash($hashAlgorithmOID)),
                                         # serialNumber
-                                        Integer::create($publicCertificate->getSerial()),
+                                        Integer::create($publicCertificate->getSerial())
                                     ]
-                                ),
+                                )
                                 # singleRequestExtensions
                             ]
-                        ),
+                        )
                     ]
                 ),
                 # requestExtensions
@@ -101,11 +101,11 @@ class OCSPRequest extends Request
                     Sequence::create([
                             Sequence::create([
                                     ObjectIdentifier::create(self::OID_OCSPNonce),
-                                    OctetString::createFromString(OctetString::createFromString((string)self::generateNonce())->getBinary()),
+                                    OctetString::createFromString(OctetString::createFromString((string)self::generateNonce())->getBinary())
                                 ]
-                            ),
+                            )
                         ]
-                    ),
+                    )
                 )
             ]
         );
