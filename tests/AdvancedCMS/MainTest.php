@@ -48,6 +48,11 @@ abstract class MainTest extends TestCase
         return file_get_contents(__DIR__ . '/../fixtures/TimeStampResponse.pem');
     }
 
+    public function getOCSPRequest()
+    {
+        return file_get_contents(__DIR__ . '/../fixtures/OCSPRequest.pem');
+    }
+
     protected function curlRequest(string $url, string $binaryContent, string $requestContentType, string $responseContentType)
     {
         $curl = curl_init();

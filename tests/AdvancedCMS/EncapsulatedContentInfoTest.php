@@ -37,4 +37,25 @@ class EncapsulatedContentInfoTest extends MainTest
 
         self::assertEquals(OctetString::createFromString("new data"), $newOneSignedData->getSignedDataContent()->getEncapsulatedContentInfo()->getEContent());
     }
+
+    public function testContentManipulate()
+    {
+        $binary = base64_decode($this->getNoDataNoUnsignedCMS());
+        $sequence = Sequence::fromBinary($binary);
+        $signedData = new SignedData($sequence);
+
+        $signedData->getSignedDataContent()->getEncapsulatedContentInfo()->setEContent(OctetString::createFromString("12345"));
+
+        $newBinary = $signedData->getBinary();
+        $newSequence = Sequence::fromBinary($newBinary);
+        $newSignedData = new SignedData($newSequence);
+
+        self::assertEquals(true, $newSignedData->hasData());
+
+        self::assertEquals("12345", $newSignedData->getData());
+
+        $newSignedData->getSignedDataContent()->getEncapsulatedContentInfo()->unSetEContent();
+
+        self::assertEquals($binary, $newSignedData->getBinary());
+    }
 }

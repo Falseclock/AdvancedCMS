@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Falseclock\AdvancedCMS\Test;
 
-use Falseclock\AdvancedCMS\Maps\OCSPResponseStatus;
+use Falseclock\AdvancedCMS\OCSPResponseStatus;
 use Falseclock\AdvancedCMS\OCSPResponse;
 
 class OCSPResponseStatusTest extends MainTest
@@ -16,7 +16,11 @@ class OCSPResponseStatusTest extends MainTest
         $responseStatus->getMapping();
         $responseStatus->isSuccessful();
 
-        self::assertEquals(OCSPResponseStatus::MAP['mapping'], $responseStatus->getMapping());
+        self::assertEquals(\Falseclock\AdvancedCMS\Maps\OCSPResponseStatus::MAP['mapping'], $responseStatus->getMapping());
         self::assertEquals(true, $responseStatus->isSuccessful());
+
+        $responseStatus = OCSPResponseStatus::createFromContent($responseStatus->getBinary());
+
+        self::assertInstanceOf(OCSPResponseStatus::class, $responseStatus);
     }
 }

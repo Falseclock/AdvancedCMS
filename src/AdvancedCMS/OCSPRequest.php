@@ -15,6 +15,7 @@ use Adapik\CMS\Certificate;
 use Adapik\CMS\Exception\FormatException;
 use Adapik\CMS\Signature;
 use Exception;
+use FG\ASN1\Exception\ParserException;
 use FG\ASN1\ExplicitlyTaggedObject;
 use FG\ASN1\Universal\Integer;
 use FG\ASN1\Universal\NullObject;
@@ -132,16 +133,16 @@ class OCSPRequest extends Request
     }
 
     /**
-     * FIXME: возвращать объект
      * @return Signature|null
-     * @throws FormatException
+     * @throws ParserException
      */
     public function getOptionalSignature()
     {
         $children = $this->object->getChildren();
 
         if (count($children) == 2) {
-            return Signature::createFromContent($children[1]->getBinaryContent());
+            $binary = $children[1]->getBinaryContent();
+            return new Signature(Sequence::fromBinary($binary));
         }
 
         return null;
