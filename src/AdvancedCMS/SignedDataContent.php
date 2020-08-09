@@ -1,7 +1,6 @@
 <?php
 /**
  * SignedDataContent
- * @see \Adapik\CMS\SignedDataContent
  *
  * @author    Nurlan Mukhanov <nurike@gmail.com>
  * @copyright 2020 Nurlan Mukhanov
@@ -9,12 +8,14 @@
  * @link      https://github.com/Falseclock/CMS-EDITOR
  */
 
-namespace Falseclock\EditCMS;
+namespace Falseclock\AdvancedCMS;
 
 use Adapik\CMS\AlgorithmIdentifier;
 use Adapik\CMS\Certificate;
 use Adapik\CMS\RevocationInfoChoices;
+use Exception;
 use FG\ASN1\Exception\ParserException;
+use FG\ASN1\ExplicitlyTaggedObject;
 use FG\ASN1\Universal\Sequence;
 use FG\ASN1\Universal\Set;
 
@@ -22,7 +23,7 @@ use FG\ASN1\Universal\Set;
  * Class SignedDataContent
  *
  * @see     \Adapik\CMS\Maps\SignedDataContent
- * @package Falseclock\EditCMS
+ * @package Falseclock\AdvancedCMS
  */
 class SignedDataContent extends \Adapik\CMS\SignedDataContent
 {
@@ -75,5 +76,33 @@ class SignedDataContent extends \Adapik\CMS\SignedDataContent
         $signerInfoSet->appendChild(Sequence::fromBinary($binary));
 
         return $this;
+    }
+
+    /**
+     * @return SignerInfo[]
+     * @throws Exception
+     */
+    public function getSignerInfoSet()
+    {
+        /** @var SignerInfo[] $children */
+        $children = $this->findSignerInfoChildren();
+
+        array_walk($children, function (&$child) {
+            $child = new SignerInfo($child);
+        });
+
+        return $children;
+    }
+
+    /**
+     * @return EncapsulatedContentInfo
+     * @throws Exception
+     */
+    public function getEncapsulatedContentInfo()
+    {
+        /** @var ExplicitlyTaggedObject $EncapsulatedContentInfoSet */
+        $sequence = $this->object->findChildrenByType(Sequence::class)[0];
+
+        return new EncapsulatedContentInfo($sequence);
     }
 }

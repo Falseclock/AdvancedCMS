@@ -8,7 +8,7 @@
  * @link      https://github.com/Adapik/CMS
  */
 
-namespace Falseclock\EditCMS;
+namespace Falseclock\AdvancedCMS;
 
 use FG\ASN1\ASN1Object;
 

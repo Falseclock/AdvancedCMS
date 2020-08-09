@@ -1,7 +1,6 @@
 <?php
 /**
  * SignerInfo
- * @see \Adapik\CMS\SignerInfo
  *
  * @author    Nurlan Mukhanov <nurike@gmail.com>
  * @copyright 2020 Nurlan Mukhanov
@@ -9,7 +8,7 @@
  * @link      https://github.com/Falseclock/CMS-EDITOR
  */
 
-namespace Falseclock\EditCMS;
+namespace Falseclock\AdvancedCMS;
 
 use Exception;
 use FG\ASN1\ExplicitlyTaggedObject;
@@ -20,7 +19,7 @@ use FG\ASN1\Universal\NullObject;
  * Class SignerInfo
  *
  * @see     \Adapik\CMS\Maps\SignerInfo
- * @package Adapik\CMS
+ * @package Falseclock\AdvancedCMS
  */
 class SignerInfo extends \Adapik\CMS\SignerInfo
 {
@@ -43,21 +42,19 @@ class SignerInfo extends \Adapik\CMS\SignerInfo
     }
 
     /**
-     * @return ImplicitlyTaggedObject
-     */
-    protected function createUnsignedAttribute()
-    {
-        return ExplicitlyTaggedObject::create(1, NullObject::create());
-    }
-
-    /**
      * @return UnsignedAttributes
      * @throws Exception
      */
     public function getUnsignedAttributes()
     {
-        $attributes = $this->findUnsignedAttributes();
+        return new UnsignedAttributes($this->findUnsignedAttributes());
+    }
 
-        return new UnsignedAttributes($attributes);
+    /**
+     * @return ImplicitlyTaggedObject
+     */
+    protected function createUnsignedAttribute()
+    {
+        return ExplicitlyTaggedObject::create(1, NullObject::create());
     }
 }

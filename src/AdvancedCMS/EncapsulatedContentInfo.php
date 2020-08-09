@@ -1,7 +1,6 @@
 <?php
 /**
  * EncapsulatedContentInfo
- * @see \Adapik\CMS\EncapsulatedContentInfo
  *
  * @author    Nurlan Mukhanov <nurike@gmail.com>
  * @copyright 2020 Nurlan Mukhanov
@@ -9,7 +8,7 @@
  * @link      https://github.com/Falseclock/CMS-EDITOR
  */
 
-namespace Falseclock\EditCMS;
+namespace Falseclock\AdvancedCMS;
 
 use FG\ASN1\Exception\Exception;
 use FG\ASN1\ExplicitlyTaggedObject;
@@ -19,7 +18,7 @@ use FG\ASN1\Universal\OctetString;
  * Class EncapsulatedContentInfo
  *
  * @see     \Adapik\CMS\Maps\EncapsulatedContentInfo
- * @package Adapik\CMS
+ * @package Falseclock\AdvancedCMS
  */
 class EncapsulatedContentInfo extends \Adapik\CMS\EncapsulatedContentInfo
 {

@@ -1,7 +1,6 @@
 <?php
 /**
  * UnsignedAttributes
- * @see \Adapik\CMS\UnsignedAttributes
  *
  * @author    Nurlan Mukhanov <nurike@gmail.com>
  * @copyright 2020 Nurlan Mukhanov
@@ -9,12 +8,11 @@
  * @link      https://github.com/Falseclock/CMS-EDITOR
  */
 
-namespace Falseclock\EditCMS;
+namespace Falseclock\AdvancedCMS;
 
 use Adapik\CMS\BasicOCSPResponse;
 use Adapik\CMS\CertificateList;
 use Adapik\CMS\RevocationValues;
-use Adapik\CMS\TimeStampResponse;
 use Adapik\CMS\TimeStampToken;
 use FG\ASN1\Exception\Exception;
 use FG\ASN1\Exception\ParserException;
@@ -27,7 +25,7 @@ use FG\ASN1\Universal\Set;
  * Class UnsignedAttributes
  *
  * @see     \Adapik\CMS\Maps\UnsignedAttributes
- * @package Adapik\CMS
+ * @package Falseclock\AdvancedCMS
  */
 class UnsignedAttributes extends \Adapik\CMS\UnsignedAttributes
 {

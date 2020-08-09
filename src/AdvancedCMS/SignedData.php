@@ -9,19 +9,33 @@
  * @link      https://github.com/Falseclock/CMS-EDITOR
  */
 
-namespace Falseclock\EditCMS;
+namespace Falseclock\AdvancedCMS;
 
+use Adapik\CMS\Exception\FormatException;
 use Exception;
 use FG\ASN1\ExplicitlyTaggedObject;
+use FG\ASN1\Universal\Sequence;
 
 /**
  * Class SignedData
  *
  * @see     \Adapik\CMS\Maps\SignedData
- * @package Falseclock\EditCMS
+ * @package Falseclock\AdvancedCMS
  */
 class SignedData extends \Adapik\CMS\SignedData
 {
+    /**
+     * Overriding parent method to return self instance
+     *
+     * @param string $content
+     * @return SignedData
+     * @throws FormatException
+     */
+    public static function createFromContent(string $content)
+    {
+        return new self(self::makeFromContent($content, \Adapik\CMS\Maps\SignedData::class, Sequence::class));
+    }
+
     /**
      * @param SignedData $signedData
      *
