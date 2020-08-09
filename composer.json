@@ -32,7 +32,8 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^9.3.0",
-    "satooshi/php-coveralls": "^1.0"
+    "satooshi/php-coveralls": "^1.0",
+    "ext-curl": "*"
   },
   "autoload": {
     "psr-4": {

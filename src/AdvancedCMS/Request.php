@@ -10,13 +10,9 @@
 
 namespace Falseclock\AdvancedCMS;
 
-use FG\ASN1\ASN1Object;
+use Adapik\CMS\CMSBase;
 
-interface Request
+abstract class Request extends CMSBase
 {
-    /**
-     * @param string[] $urls
-     * @return ASN1Object|null
-     */
-    public function processRequest(array $urls);
+
 }
