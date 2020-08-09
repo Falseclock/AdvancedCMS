@@ -10,6 +10,7 @@
 
 namespace Falseclock\AdvancedCMS;
 
+use Adapik\CMS\UnsignedAttribute;
 use Exception;
 use FG\ASN1\ExplicitlyTaggedObject;
 use FG\ASN1\ImplicitlyTaggedObject;
@@ -23,7 +24,13 @@ use FG\ASN1\Universal\NullObject;
  */
 class SignerInfo extends \Adapik\CMS\SignerInfo
 {
+    public function addUnsignedAttribute(UnsignedAttribute $unsignedAttribute)
+    {
+
+    }
+
     /**
+     * @fixme
      * @return void
      * @throws Exception
      */
@@ -42,15 +49,20 @@ class SignerInfo extends \Adapik\CMS\SignerInfo
     }
 
     /**
-     * @return UnsignedAttributes
+     * @return UnsignedAttributes|null
      * @throws Exception
      */
     public function getUnsignedAttributes()
     {
-        return new UnsignedAttributes($this->findUnsignedAttributes());
+        $unsignedAttributes = $this->findUnsignedAttributes();
+        if ($unsignedAttributes) {
+            return new UnsignedAttributes($this->findUnsignedAttributes());
+        }
+        return null;
     }
 
     /**
+     * @fixme
      * @return ImplicitlyTaggedObject
      */
     protected function createUnsignedAttribute()

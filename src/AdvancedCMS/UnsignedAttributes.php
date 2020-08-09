@@ -36,14 +36,18 @@ class UnsignedAttributes extends \Adapik\CMS\UnsignedAttributes
      * @param BasicOCSPResponse|null $basicOCSPResponse
      *
      * @param CertificateList|null $certificateList
-     * @param Sequence|null $otherRevVals
+     * @param Sequence|null $otherRevValues
      * @return \Adapik\CMS\UnsignedAttributes
      * @throws Exception
      * @throws ParserException
      * @see \Adapik\CMS\Maps\RevocationValues
      */
-    public function setRevocationValues(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null, ?Sequence $otherRevVals = null)
+    public function setRevocationValues(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null, ?Sequence $otherRevValues = null)
     {
+        if (is_null($basicOCSPResponse) and is_null($certificateList) and is_null($otherRevValues)) {
+            throw new \Exception("At least 1 parameter must be not null");
+        }
+
         $values = [];
 
         if (!is_null($basicOCSPResponse)) {
@@ -68,8 +72,8 @@ class UnsignedAttributes extends \Adapik\CMS\UnsignedAttributes
             );
         }
 
-        if (!is_null($otherRevVals)) {
-            $binary = $otherRevVals->getBinary();
+        if (!is_null($otherRevValues)) {
+            $binary = $otherRevValues->getBinary();
 
             $values[] = ExplicitlyTaggedObject::create(2,
                 Sequence::create([
@@ -110,20 +114,14 @@ class UnsignedAttributes extends \Adapik\CMS\UnsignedAttributes
      */
     public function setTimeStampToken(TimeStampResponse $response)
     {
-        $binary = $response->getTimeStampToken()->getBinary();
-
-        $timeStampToken = Sequence::create([
-                ObjectIdentifier::create(TimeStampToken::getOid()),
-                Set::create([Sequence::fromBinary($binary)]),
-            ]
-        );
+        $timeStampTokenSequence = TimeStampToken::sequenceFromTimeStampResponse($response);
 
         $current = $this->findByOid(TimeStampToken::getOid());
 
         if ($current) {
-            $this->object->replaceChild($current, $timeStampToken);
+            $this->object->replaceChild($current, $timeStampTokenSequence);
         } else {
-            $this->object->appendChild($timeStampToken);
+            $this->object->appendChild($timeStampTokenSequence);
         }
 
         return $this;

@@ -37,6 +37,16 @@ abstract class MainTest extends TestCase
         return file_get_contents(__DIR__ . '/../fixtures/intermediateCertificate.pem');
     }
 
+    public function getSetOfUnsignedCMS()
+    {
+        return file_get_contents(__DIR__ . '/../fixtures/setOfUnsignedCMS.cms');
+    }
+
+    public function getTimeStampResponse()
+    {
+        return file_get_contents(__DIR__ . '/../fixtures/TimeStampResponse.pem');
+    }
+
     protected function curlRequest(string $url, string $binaryContent, string $requestContentType, string $responseContentType)
     {
         $curl = curl_init();

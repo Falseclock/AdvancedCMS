@@ -9,17 +9,19 @@ use Falseclock\AdvancedCMS\SignerInfo;
 use Falseclock\AdvancedCMS\UnsignedAttributes;
 use FG\ASN1\Universal\Sequence;
 
-class InstanceOfTest extends MainTest
+class SignedDataTest extends MainTest
 {
-    public function testInstance()
+    public function testInstances()
     {
+        // test from content
         $signedData = SignedData::createFromContent($this->getFullCMS());
         self::assertInstanceOf(SignedData::class, $signedData);
 
+        // test from Sequence
         $binary = base64_decode($this->getFullCMS());
         $sequence = Sequence::fromBinary($binary);
-
         $signedData = new SignedData($sequence);
+
         $signerInfo = $signedData->getSignedDataContent()->getSignerInfoSet()[0];
 
         self::assertInstanceOf(EncapsulatedContentInfo::class, $signedData->getSignedDataContent()->getEncapsulatedContentInfo());
@@ -27,5 +29,25 @@ class InstanceOfTest extends MainTest
         self::assertInstanceOf(SignedDataContent::class, $signedData->getSignedDataContent());
         self::assertInstanceOf(SignerInfo::class, $signerInfo);
         self::assertInstanceOf(UnsignedAttributes::class, $signerInfo->getUnsignedAttributes());
+    }
+
+    public function testMerge()
+    {
+        $signedData0 = SignedData::createFromContent(base64_decode($this->getNoDataNoUnsignedCMS()));
+        $signedData1 = SignedData::createFromContent(base64_decode($this->getNoDataNoUnsignedCMS()));
+        $signedData2 = SignedData::createFromContent(base64_decode($this->getWithDataNoUnsignedCMS()));
+
+        $signedData1->mergeCMS($signedData2);
+
+        // Testing creation from binary
+        $signedData3 = SignedData::createFromContent($signedData1->getBinary());
+
+        self::assertCount(
+            count($signedData0->getSignedDataContent()->getCertificateSet()) + count($signedData2->getSignedDataContent()->getCertificateSet()),
+            $signedData3->getSignedDataContent()->getCertificateSet());
+
+        self::assertCount(
+            count($signedData0->getSignedDataContent()->getSignerInfoSet()) + count($signedData2->getSignedDataContent()->getSignerInfoSet()),
+            $signedData3->getSignedDataContent()->getSignerInfoSet());
     }
 }

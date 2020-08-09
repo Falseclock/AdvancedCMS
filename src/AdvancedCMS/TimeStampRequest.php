@@ -12,8 +12,9 @@ namespace Falseclock\AdvancedCMS;
 
 use Adapik\CMS\Algorithm;
 use Adapik\CMS\Exception\FormatException;
+use Adapik\CMS\MessageImprint;
 use Exception;
-use FG\ASN1\ImplicitlyTaggedObject;
+use FG\ASN1\ASN1ObjectInterface;
 use FG\ASN1\Universal\Boolean;
 use FG\ASN1\Universal\Integer;
 use FG\ASN1\Universal\NullObject;
@@ -47,7 +48,7 @@ class TimeStampRequest extends Request
     }
 
     /**
-     * @param OctetString $data data which should be queried with TS request
+     * @param OctetString|ASN1ObjectInterface $data data which should be queried with TS request
      * @param string $hashAlgorithmOID
      * @return TimeStampRequest
      * @throws Exception
@@ -75,66 +76,51 @@ class TimeStampRequest extends Request
     }
 
     /**
-     * FIXME: shouldn't return ASN1Object
      * @return Boolean
      * @throws Exception
      */
     public function getCertReq()
     {
-        return $this->object->findChildrenByType(Boolean::class)[0];
+        /** @var Boolean $boolean */
+        $boolean = $this->object->findChildrenByType(Boolean::class)[0]->getBinary();
+
+        return Boolean::fromBinary($boolean);
     }
 
     /**
-     * FIXME: shouldn't return ASN1Object
-     * @return ImplicitlyTaggedObject|null
-     * @throws Exception
-     */
-    public function getExtensions()
-    {
-        $objects = $this->object->findChildrenByType(ImplicitlyTaggedObject::class);
-
-        if (count($objects)) {
-            return $objects[0];
-        }
-
-        return null;
-    }
-
-    /**
-     * FIXME: shouldn't return ASN1Object
-     * @return Sequence
+     * @return MessageImprint
      * @throws Exception
      */
     public function getMessageImprint()
     {
-        return $this->object->findChildrenByType(Sequence::class)[0];
+        return new MessageImprint($this->object->findChildrenByType(Sequence::class)[0]);
     }
 
     /**
-     * FIXME: shouldn't return ASN1Object
-     * @return Integer|null
+     * @return Integer|ASN1ObjectInterface|null
      * @throws Exception
      */
     public function getNonce()
     {
         $integers = $this->object->findChildrenByType(Integer::class);
         if (count($integers) == 2) {
-            return $integers[1];
+            $binary = $integers[1]->getBinary();
+            return Integer::fromBinary($binary);
         }
 
         return null;
     }
 
     /**
-     * FIXME: shouldn't return ASN1Object
-     * @return ObjectIdentifier
+     * @return ObjectIdentifier|ASN1ObjectInterface
      * @throws Exception
      */
     public function getReqPolicy()
     {
         $objects = $this->object->findChildrenByType(ObjectIdentifier::class);
         if (count($objects)) {
-            return $objects[0];
+            $binary = $objects[0]->getBinary();
+            return ObjectIdentifier::fromBinary($binary);
         }
 
         return null;
