@@ -27,13 +27,13 @@
   ],
   "repositories":      [
     {
-      "name": "adapik/phpasn1",
+      "name": "adapik/cms",
       "type": "vcs",
-      "url":  "https://github.com/Falseclock/PHPASN1"
+      "url":  "https://github.com/Falseclock/CMS"
     }
   ],
   "require": {
-    "php": ">=7.0",
+    "php": ">=7.2",
     "adapik/phpasn1": "^2.2",
     "adapik/cms": "dev-master"
   },
