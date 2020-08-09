@@ -50,30 +50,6 @@ class OCSPRequest extends Request
     }
 
     /**
-     * @return TBSRequest
-     */
-    public function getTBSRequest()
-    {
-        return new TBSRequest($this->object->getChildren()[0]);
-    }
-
-    /**
-     * FIXME: возвращать объект
-     * @return Signature|null
-     * @throws FormatException
-     */
-    public function getOptionalSignature()
-    {
-        $children = $this->object->getChildren();
-
-        if (count($children) == 2) {
-            return Signature::createFromContent($children[1]->getBinaryContent());
-        }
-
-        return null;
-    }
-
-    /**
      * @param Certificate $publicCertificate
      * @param Certificate $intermediateCertificate
      * @param string $hashAlgorithmOID
@@ -145,5 +121,29 @@ class OCSPRequest extends Request
     private static function generateNonce(int $length = null)
     {
         return random_bytes($length ?? self::OCSP_DEFAULT_NONCE_LENGTH);
+    }
+
+    /**
+     * @return TBSRequest
+     */
+    public function getTBSRequest()
+    {
+        return new TBSRequest($this->object->getChildren()[0]);
+    }
+
+    /**
+     * FIXME: возвращать объект
+     * @return Signature|null
+     * @throws FormatException
+     */
+    public function getOptionalSignature()
+    {
+        $children = $this->object->getChildren();
+
+        if (count($children) == 2) {
+            return Signature::createFromContent($children[1]->getBinaryContent());
+        }
+
+        return null;
     }
 }

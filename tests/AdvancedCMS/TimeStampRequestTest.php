@@ -40,7 +40,5 @@ class TimeStampRequestTest extends MainTest
         }
 
         self::assertNotNull($TimeStampResponse);
-
-
     }
 }

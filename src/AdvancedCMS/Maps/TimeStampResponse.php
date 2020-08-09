@@ -25,7 +25,7 @@ abstract class TimeStampResponse
         'type' => Identifier::SEQUENCE,
         'children' => [
             'status' => PKIStatusInfo::MAP,
-            'timeStampToken' => ['optional' => true ] + SignedData::MAP,
+            'timeStampToken' => ['optional' => true] + SignedData::MAP,
         ]
     ];
 }

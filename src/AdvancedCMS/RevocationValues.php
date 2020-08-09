@@ -31,10 +31,23 @@ class RevocationValues extends \Adapik\CMS\RevocationValues
      * @param BasicOCSPResponse|null $basicOCSPResponse
      * @param CertificateList|null $certificateList
      * @param Sequence|null $otherRevValues
+     * @return RevocationValues
+     * @throws ParserException
+     */
+    public static function createFromOCSPResponse(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null, ?Sequence $otherRevValues = null)
+    {
+        return new self(self::sequenceFromOCSPResponse($basicOCSPResponse, $certificateList, $otherRevValues));
+    }
+
+    /**
+     * @param BasicOCSPResponse|null $basicOCSPResponse
+     * @param CertificateList|null $certificateList
+     * @param Sequence|null $otherRevValues
      * @return Sequence
      * @throws ParserException
      */
-    public static function sequenceFromOCSPResponse(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null, ?Sequence $otherRevValues = null) {
+    public static function sequenceFromOCSPResponse(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null, ?Sequence $otherRevValues = null)
+    {
         if (is_null($basicOCSPResponse) and is_null($certificateList) and is_null($otherRevValues)) {
             throw new Exception("At least 1 parameter must be not null");
         }
@@ -82,17 +95,5 @@ class RevocationValues extends \Adapik\CMS\RevocationValues
                 ),
             ]
         );
-    }
-
-    /**
-     * @param BasicOCSPResponse|null $basicOCSPResponse
-     * @param CertificateList|null $certificateList
-     * @param Sequence|null $otherRevValues
-     * @return RevocationValues
-     * @throws ParserException
-     */
-    public static function createFromOCSPResponse(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null, ?Sequence $otherRevValues = null)
-    {
-        return new self(self::sequenceFromOCSPResponse($basicOCSPResponse, $certificateList, $otherRevValues));
     }
 }
