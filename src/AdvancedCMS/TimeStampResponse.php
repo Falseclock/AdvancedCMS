@@ -18,7 +18,7 @@ use FG\ASN1\Universal\Sequence;
  * Class TimeStampResponse
  *
  * @see     Maps\TimeStampResponse
- * @package AFalseclock\AdvancedCMS
+ * @package Falseclock\AdvancedCMS
  */
 class TimeStampResponse extends CMSBase
 {
@@ -50,7 +50,7 @@ class TimeStampResponse extends CMSBase
     /**
      * @return SignedData|null
      */
-    public function getTimeStampToken()
+    public function getSignedData()
     {
         $children = $this->object->getChildren();
 

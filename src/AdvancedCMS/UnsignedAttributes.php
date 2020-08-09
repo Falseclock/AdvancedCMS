@@ -12,14 +12,11 @@ namespace Falseclock\AdvancedCMS;
 
 use Adapik\CMS\BasicOCSPResponse;
 use Adapik\CMS\CertificateList;
-use Adapik\CMS\RevocationValues;
-use Adapik\CMS\TimeStampToken;
+use Adapik\CMS\CMSInterface;
+use Adapik\CMS\UnsignedAttribute;
 use FG\ASN1\Exception\Exception;
 use FG\ASN1\Exception\ParserException;
-use FG\ASN1\ExplicitlyTaggedObject;
-use FG\ASN1\Universal\ObjectIdentifier;
 use FG\ASN1\Universal\Sequence;
-use FG\ASN1\Universal\Set;
 
 /**
  * Class UnsignedAttributes
@@ -44,53 +41,7 @@ class UnsignedAttributes extends \Adapik\CMS\UnsignedAttributes
      */
     public function setRevocationValues(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null, ?Sequence $otherRevValues = null)
     {
-        if (is_null($basicOCSPResponse) and is_null($certificateList) and is_null($otherRevValues)) {
-            throw new \Exception("At least 1 parameter must be not null");
-        }
-
-        $values = [];
-
-        if (!is_null($basicOCSPResponse)) {
-            $binary = $basicOCSPResponse->getBinary();
-
-            $values[] = ExplicitlyTaggedObject::create(1,
-                Sequence::create([
-                        Sequence::fromBinary($binary),
-                    ]
-                )
-            );
-        }
-
-        if (!is_null($certificateList)) {
-            $binary = $certificateList->getBinary();
-
-            $values[] = ExplicitlyTaggedObject::create(0,
-                Sequence::create([
-                        Sequence::fromBinary($binary),
-                    ]
-                )
-            );
-        }
-
-        if (!is_null($otherRevValues)) {
-            $binary = $otherRevValues->getBinary();
-
-            $values[] = ExplicitlyTaggedObject::create(2,
-                Sequence::create([
-                        Sequence::fromBinary($binary),
-                    ]
-                )
-            );
-        }
-
-        $revocationValues = Sequence::create([
-                ObjectIdentifier::create(RevocationValues::getOid()),
-                Set::create([
-                        Sequence::create($values),
-                    ]
-                ),
-            ]
-        );
+        $revocationValues = RevocationValues::sequenceFromOCSPResponse($basicOCSPResponse, $certificateList, $otherRevValues);
 
         $current = $this->findByOid(RevocationValues::getOid());
 
@@ -102,7 +53,6 @@ class UnsignedAttributes extends \Adapik\CMS\UnsignedAttributes
 
         return $this;
     }
-
 
     /**
      * This function will append TimeStampToken with TSTInfo or create TimeStampToken as UnsignedAttribute
@@ -123,6 +73,53 @@ class UnsignedAttributes extends \Adapik\CMS\UnsignedAttributes
         } else {
             $this->object->appendChild($timeStampTokenSequence);
         }
+
+        return $this;
+    }
+
+    /**
+     * @return RevocationValues|null|CMSInterface
+     */
+    public function getRevocationValues()
+    {
+        return $this->getAttributeAsInstance(RevocationValues::class);
+    }
+
+    /**
+     * @return TimeStampToken|CMSInterface|null
+     */
+    public function getTimeStampToken()
+    {
+        return $this->getAttributeAsInstance(TimeStampToken::class);
+    }
+
+    /**
+     * @param UnsignedAttribute $unsignedAttribute
+     * @return $this
+     * @throws ParserException
+     */
+    public function appendAttribute(UnsignedAttribute $unsignedAttribute)
+    {
+        $binary = $unsignedAttribute->getBinary();
+
+        $this->object->appendChild(Sequence::fromBinary($binary));
+
+        return $this;
+    }
+
+    /**
+     * @param string $oid
+     * @param UnsignedAttribute $unsignedAttribute
+     * @return $this
+     * @throws Exception
+     * @throws ParserException
+     */
+    public function replaceAttribute(string $oid, UnsignedAttribute $unsignedAttribute)
+    {
+        $binary = $unsignedAttribute->getBinary();
+        $child = $this->findByOid($oid);
+
+        $this->object->replaceChild($child, Sequence::fromBinary($binary));
 
         return $this;
     }

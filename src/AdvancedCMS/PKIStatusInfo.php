@@ -18,7 +18,7 @@ use FG\ASN1\Universal\Sequence;
  * Class PKIStatusInfo
  *
  * @see     Maps\PKIStatusInfo
- * @package Adapik\CMS
+ * @package Falseclock\AdvancedCMS
  */
 class PKIStatusInfo extends CMSBase
 {

@@ -2,15 +2,15 @@
 
 namespace Falseclock\AdvancedCMS\Test;
 
-use Adapik\CMS\RevocationValues;
-use Adapik\CMS\TimeStampToken;
 use Adapik\CMS\UnsignedAttribute;
 use Exception;
 use Falseclock\AdvancedCMS\OCSPResponse;
+use Falseclock\AdvancedCMS\RevocationValues;
 use Falseclock\AdvancedCMS\SignedData;
 use Falseclock\AdvancedCMS\SignedDataContent;
 use Falseclock\AdvancedCMS\SignerInfo;
 use Falseclock\AdvancedCMS\TimeStampResponse;
+use Falseclock\AdvancedCMS\TimeStampToken;
 use Falseclock\AdvancedCMS\UnsignedAttributes;
 use FG\ASN1\Universal\Sequence;
 
@@ -72,18 +72,18 @@ class SignerInfoTest extends MainTest
             self::assertNotNull($unsignedAttributes->getRevocationValues());
             self::assertInstanceOf(RevocationValues::class, $unsignedAttributes->getRevocationValues());
 
-            $this->expectException(Exception::class);
-            $unsignedAttributes->setRevocationValues();
-
             $unsignedAttributes->setRevocationValues($OCSPResponse->getBasicOCSPResponse());
-
             $unsignedAttributes->setTimeStampToken($TimeStampResponse);
 
             // Create again
             $binary = $unsignedAttributes->getBinary();
             $unsignedAttributes = new UnsignedAttributes(Sequence::fromBinary($binary));
+
             self::assertEquals($OCSPResponse->getBasicOCSPResponse()->getBinary(), $unsignedAttributes->getRevocationValues()->getBasicOCSPResponse()->getBinary());
-            self::assertEquals($TimeStampResponse->getTimeStampToken()->getBinary(), $unsignedAttributes->getTimeStampToken()->getBinary());
+            self::assertEquals($TimeStampResponse->getSignedData()->getBinary(), $unsignedAttributes->getTimeStampToken()->getSignedData()->getBinary());
+
+            $this->expectException(Exception::class);
+            $unsignedAttributes->setRevocationValues();
         }
     }
 
@@ -102,11 +102,23 @@ class SignerInfoTest extends MainTest
             self::assertNull($unsignedAttributes);
 
             $TimeStampToken = TimeStampToken::createFromTimeStampResponse($TimeStampResponse);
+            $TimeStampToken->getIdentifier();
+            $TimeStampToken->getTSTInfo();
+            $TimeStampToken->getSignedData();
+            $TimeStampToken->getValue();
+
             $signerInfo->addUnsignedAttribute($TimeStampToken);
 
+            $RevocationValues = RevocationValues::createFromOCSPResponse($OCSPResponse->getBasicOCSPResponse());
+            $signerInfo->addUnsignedAttribute($RevocationValues);
 
-            $signerInfo->addUnsignedAttribute($TimeStampToken);
+            $unsignedAttributes = $signerInfo->getUnsignedAttributes();
+
+            // Create again
+            $binary = $unsignedAttributes->getBinary();
+            $unsignedAttributes = new UnsignedAttributes(Sequence::fromBinary($binary));
+            self::assertEquals($OCSPResponse->getBasicOCSPResponse()->getBinary(), $unsignedAttributes->getRevocationValues()->getBasicOCSPResponse()->getBinary());
+            self::assertEquals($TimeStampResponse->getSignedData()->getBinary(), $unsignedAttributes->getTimeStampToken()->getSignedData()->getBinary());
         }
     }
-
 }

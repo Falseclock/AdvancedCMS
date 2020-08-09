@@ -12,8 +12,8 @@ namespace Falseclock\AdvancedCMS;
 
 use Adapik\CMS\UnsignedAttribute;
 use Exception;
+use FG\ASN1\Exception\ParserException;
 use FG\ASN1\ExplicitlyTaggedObject;
-use FG\ASN1\ImplicitlyTaggedObject;
 use FG\ASN1\Universal\NullObject;
 
 /**
@@ -24,28 +24,28 @@ use FG\ASN1\Universal\NullObject;
  */
 class SignerInfo extends \Adapik\CMS\SignerInfo
 {
-    public function addUnsignedAttribute(UnsignedAttribute $unsignedAttribute)
-    {
-
-    }
-
     /**
-     * @fixme
-     * @return void
-     * @throws Exception
+     * @param UnsignedAttribute $newAttribute
+     * @return $this
+     * @throws \FG\ASN1\Exception\Exception
+     * @throws ParserException
      */
-    protected function createUnsignedAttributesIfNotExist(): void
+    public function addUnsignedAttribute(UnsignedAttribute $newAttribute)
     {
-        /**
-         * 1. First check do we have unsignedAttrs or not, cause it is optional fields and create it if not.
-         * Always push it to the end of child.
-         */
-        $UnsignedAttribute = $this->getUnsignedAttributes();
-
-        if (is_null($UnsignedAttribute)) {
-            $UnsignedAttribute = $this->createUnsignedAttribute();
-            $this->object->appendChild($UnsignedAttribute);
+        $UnsignedAttributes = $this->getUnsignedAttributes();
+        if (is_null($UnsignedAttributes)) {
+            $UnsignedAttributes = $this->createUnsignedAttributes();
         }
+
+        $oid = $newAttribute->getIdentifier()->__toString();
+
+        if (is_null($UnsignedAttributes->getByOid($oid))) {
+            $UnsignedAttributes->appendAttribute($newAttribute);
+        } else {
+            $UnsignedAttributes->replaceAttribute($oid, $newAttribute);
+        }
+
+        return $this;
     }
 
     /**
@@ -61,12 +61,21 @@ class SignerInfo extends \Adapik\CMS\SignerInfo
         return null;
     }
 
+
     /**
-     * @fixme
-     * @return ImplicitlyTaggedObject
+     * @return UnsignedAttributes
+     * @throws Exception
      */
-    protected function createUnsignedAttribute()
+    protected function createUnsignedAttributes()
     {
-        return ExplicitlyTaggedObject::create(1, NullObject::create());
+        $UnsignedAttribute = $this->getUnsignedAttributes();
+
+        if (is_null($UnsignedAttribute)) {
+            $UnsignedAttribute = ExplicitlyTaggedObject::create(1, NullObject::create());
+            $UnsignedAttribute->removeChild($UnsignedAttribute->getChildren()[0]);
+            $this->object->appendChild($UnsignedAttribute);
+        }
+
+        return $this->getUnsignedAttributes();
     }
 }
