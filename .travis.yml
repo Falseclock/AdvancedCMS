@@ -1,6 +1,8 @@
 language: php
 sudo: false
 
+dist: trusty
+
 php:
   - 7.2
   - 7.3
@@ -15,7 +17,6 @@ before_script:
 
 script:
   - vendor/bin/phpunit --coverage-clover build/logs/clover.xml
-
 
 after_script:
   - vendor/bin/coveralls --verbose
