@@ -100,9 +100,9 @@ class OCSPRequest extends Request
                 ExplicitlyTaggedObject::create(2,
                     Sequence::create([
                             Sequence::create([
-                                ObjectIdentifier::create(self::OID_OCSPNonce),
-                                OctetString::createFromString(OctetString::createFromString((string)self::generateNonce())->getBinary()),
-                            ],
+                                    ObjectIdentifier::create(self::OID_OCSPNonce),
+                                    OctetString::createFromString(OctetString::createFromString((string)self::generateNonce())->getBinary()),
+                                ]
                             ),
                         ]
                     ),
