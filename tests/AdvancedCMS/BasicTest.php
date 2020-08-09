@@ -1,6 +1,6 @@
 <?php
 
-namespace Falseclock\Test\EditCMS;
+namespace Falseclock\AdvancedCMS\Test;
 
 use Falseclock\AdvancedCMS\EncapsulatedContentInfo;
 use Falseclock\AdvancedCMS\SignedData;
