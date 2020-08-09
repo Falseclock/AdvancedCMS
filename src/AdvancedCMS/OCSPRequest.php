@@ -106,7 +106,7 @@ class OCSPRequest extends Request
                             ),
                         ]
                     ),
-                ),
+                )
             ]
         );
         // TODO: signature create and test
