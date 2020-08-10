@@ -13,14 +13,6 @@ abstract class MainTest extends TestCase
         return file_get_contents(__DIR__ . '/../fixtures/OCSPResponse.pem');
     }
 
-    /**
-     * @todo unused
-     */
-    public function getOCSPRequestWithoutSignature()
-    {
-        return file_get_contents(__DIR__ . '/../fixtures/OCSPRequestWithoutSignature.pem');
-    }
-
     public function getFullCMS()
     {
         return file_get_contents(__DIR__ . '/../fixtures/full.cms');
@@ -60,7 +52,6 @@ abstract class MainTest extends TestCase
     {
         return file_get_contents(__DIR__ . '/../fixtures/OCSPRequestWithSignature.pem');
     }
-
 
     protected function curlRequest(string $url, string $binaryContent, string $requestContentType, string $responseContentType)
     {
