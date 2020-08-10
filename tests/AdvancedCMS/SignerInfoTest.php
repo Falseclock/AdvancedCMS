@@ -50,6 +50,10 @@ class SignerInfoTest extends MainTest
 
                 // just test no exception
                 new UnsignedAttribute(Sequence::fromBinary($binary));
+
+                $unsignedAttributes->appendAttribute($unsignedAttribute);
+                $unsignedAttributes->replaceAttribute($unsignedAttribute->getIdentifier()->__toString(), $unsignedAttribute);
+
             }
 
             self::assertInstanceOf(RevocationValues::class, $unsignedAttributes->getRevocationValues());
