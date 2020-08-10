@@ -12,6 +12,7 @@ namespace Falseclock\AdvancedCMS;
 
 use Adapik\CMS\Algorithm;
 use Adapik\CMS\Certificate;
+use Adapik\CMS\CMSBase;
 use Adapik\CMS\Exception\FormatException;
 use Adapik\CMS\Signature;
 use Exception;
@@ -29,7 +30,7 @@ use FG\ASN1\Universal\Sequence;
  * @see     Maps\OCSPRequest
  * @package Falseclock\AdvancedCMS
  */
-class OCSPRequest extends Request
+class OCSPRequest extends CMSBase
 {
     const CONTENT_TYPE = 'application/ocsp-request';
     const OCSP_DEFAULT_NONCE_LENGTH = 16;
@@ -119,7 +120,7 @@ class OCSPRequest extends Request
      * @return string
      * @throws Exception
      */
-    private static function generateNonce(int $length = null)
+    protected static function generateNonce(int $length = null)
     {
         return random_bytes($length ?? self::OCSP_DEFAULT_NONCE_LENGTH);
     }

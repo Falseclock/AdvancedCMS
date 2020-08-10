@@ -11,6 +11,7 @@
 namespace Falseclock\AdvancedCMS;
 
 use Adapik\CMS\Algorithm;
+use Adapik\CMS\CMSBase;
 use Adapik\CMS\Exception\FormatException;
 use Adapik\CMS\MessageImprint;
 use Exception;
@@ -28,7 +29,7 @@ use FG\ASN1\Universal\Sequence;
  * @see     Maps\TimeStampRequest
  * @package Falseclock\AdvancedCMS
  */
-class TimeStampRequest extends Request
+class TimeStampRequest extends CMSBase
 {
     const CONTENT_TYPE = 'application/timestamp-query';
 

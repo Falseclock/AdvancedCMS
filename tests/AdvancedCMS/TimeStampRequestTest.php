@@ -17,6 +17,8 @@ class TimeStampRequestTest extends MainTest
         $binary = "123456";
         $timeStampRequest = TimeStampRequest::createSimple(OctetString::createFromString($binary));
 
+        $timeStampRequest = TimeStampRequest::createFromContent($timeStampRequest->getBinary());
+
         $messageImprint = $timeStampRequest->getMessageImprint();
         self::assertInstanceOf(MessageImprint::class, $messageImprint);
         $messageImprint->getHashAlgorithm();

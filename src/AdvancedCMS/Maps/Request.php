@@ -25,7 +25,7 @@ abstract class Request
     const MAP = [
         'type' => Identifier::SEQUENCE,
         'children' => [
-            'reqCert' => CertID::MAP,
+            'requestedCertificate' => CertID::MAP,
             'singleRequestExtensions' => [
                     'constant' => 0,
                     'optional' => true,

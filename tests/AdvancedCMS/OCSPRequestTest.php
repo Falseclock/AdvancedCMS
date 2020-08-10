@@ -4,11 +4,15 @@ declare(strict_types=1);
 namespace Falseclock\AdvancedCMS\Test;
 
 use Adapik\CMS\Algorithm;
+use Adapik\CMS\AlgorithmIdentifier;
 use Adapik\CMS\Certificate;
+use Adapik\CMS\GeneralName;
+use Adapik\CMS\Signature;
 use Falseclock\AdvancedCMS\OCSPRequest;
 use Falseclock\AdvancedCMS\OCSPResponse;
 use Falseclock\AdvancedCMS\SignedData;
 use Falseclock\AdvancedCMS\TBSRequest;
+use FG\ASN1\Universal\BitString;
 
 class OCSPRequestTest extends MainTest
 {
@@ -40,10 +44,39 @@ class OCSPRequestTest extends MainTest
         self::assertNotNull($OCSPResponse);
     }
 
-    /**
-     * @todo implement
-     */
-    //public function testWithSignature() {
-    //    self::assertInstanceOf(Signature::class, $OCSPRequest->getOptionalSignature());
-    //}
+    public function testWithSignature()
+    {
+        $OCSPRequest = OCSPRequest::createFromContent($this->OCSPRequestWithSignature());
+
+        $optionalSignature = $OCSPRequest->getOptionalSignature();
+
+        self::assertInstanceOf(Signature::class, $optionalSignature);
+
+        self::assertInstanceOf(AlgorithmIdentifier::class, $optionalSignature->getSignatureAlgorithm());
+        self::assertInstanceOf(BitString::class, $optionalSignature->getSignature());
+        self::assertIsIterable($optionalSignature->getCerts());
+
+        foreach ($optionalSignature->getCerts() as $certificate) {
+            self::assertInstanceOf(Certificate::class, $certificate);
+            $certificate->getSignature();
+            $certificate->getSignatureAlgorithm();
+            $certificate->getOcspUris();
+            $certificate->getSerial();
+            $certificate->getSubjectKeyIdentifier();
+            $certificate->getSubject();
+            $certificate->getAuthorityKeyIdentifier();
+            $certificate->getCertPolicies();
+            $certificate->getExtendedKeyUsage();
+            $certificate->getIssuer();
+            $certificate->getValidNotAfter();
+            $certificate->getValidNotBefore();
+            $certificate->isCa();
+        }
+
+        $requesterName = $OCSPRequest->getTBSRequest()->getRequesterName();
+
+        self::assertInstanceOf(GeneralName::class, $requesterName);
+
+        GeneralName::createFromContent($requesterName->getBinary());
+    }
 }
