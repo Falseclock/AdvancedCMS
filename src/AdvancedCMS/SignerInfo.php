@@ -10,11 +10,13 @@
 
 namespace Falseclock\AdvancedCMS;
 
+use Adapik\CMS\Exception\FormatException;
 use Adapik\CMS\UnsignedAttribute;
 use Exception;
 use FG\ASN1\Exception\ParserException;
 use FG\ASN1\ExplicitlyTaggedObject;
 use FG\ASN1\Universal\NullObject;
+use FG\ASN1\Universal\Sequence;
 
 /**
  * Class SignerInfo
@@ -24,6 +26,17 @@ use FG\ASN1\Universal\NullObject;
  */
 class SignerInfo extends \Adapik\CMS\SignerInfo
 {
+	/**
+	 * @param string $content
+	 *
+	 * @return \Adapik\CMS\SignerInfo
+	 * @throws FormatException
+	 */
+	public static function createFromContent(string $content)
+	{
+		return new self(self::makeFromContent($content, \Adapik\CMS\Maps\SignerInfo::class, Sequence::class));
+	}
+
     /**
      * @param UnsignedAttribute $newAttribute
      * @return $this

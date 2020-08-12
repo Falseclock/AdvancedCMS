@@ -12,7 +12,7 @@ namespace Falseclock\AdvancedCMS;
 
 use Adapik\CMS\BasicOCSPResponse;
 use Adapik\CMS\CertificateList;
-use Adapik\CMS\CMSInterface;
+use Adapik\CMS\Interfaces\CMSInterface;
 use Adapik\CMS\UnsignedAttribute;
 use FG\ASN1\Exception\Exception;
 use FG\ASN1\Exception\ParserException;
