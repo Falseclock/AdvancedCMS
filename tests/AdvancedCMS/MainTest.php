@@ -48,10 +48,20 @@ abstract class MainTest extends TestCase
         return file_get_contents(__DIR__ . '/../fixtures/OCSPRequest.pem');
     }
 
-    public function OCSPRequestWithSignature()
+    public function getOCSPRequestWithSignature()
     {
         return file_get_contents(__DIR__ . '/../fixtures/OCSPRequestWithSignature.pem');
     }
+
+	public function getRevokedCertificate()
+	{
+		return file_get_contents(__DIR__ . '/../fixtures/revokedCertificate.pem');
+	}
+
+	public function getDoubleOCSPRequest()
+	{
+		return file_get_contents(__DIR__ . '/../fixtures/DoubleOCSPRequest.pem');
+	}
 
     protected function curlRequest(string $url, string $binaryContent, string $requestContentType, string $responseContentType)
     {

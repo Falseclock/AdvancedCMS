@@ -16,6 +16,38 @@ use FG\ASN1\Universal\BitString;
 
 class OCSPRequestTest extends MainTest
 {
+    public function testDouble()
+    {
+        $OCSPRequest = OCSPRequest::createFromContent($this->getDoubleOCSPRequest());
+        $requestList = $OCSPRequest->getTBSRequest()->getRequestList();
+
+        self::assertIsIterable($requestList);
+        self::assertCount(2, $requestList);
+    }
+
+    public function testRevoked()
+    {
+        $certificate = Certificate::createFromContent($this->getRevokedCertificate());
+        $intermediateCertificate = Certificate::createFromContent($this->getIntermediateCertificate());
+        $OCSPRequest = OCSPRequest::createSimple($certificate, $intermediateCertificate, Algorithm::OID_SHA256);
+
+        foreach ($certificate->getOcspUris() as $url) {
+            $result = $this->curlRequest($url, $OCSPRequest->getBinary(), OCSPRequest::CONTENT_TYPE, OCSPResponse::CONTENT_TYPE);
+
+            if (!is_null($result)) {
+                $OCSPResponse = OCSPResponse::createFromContent($result);
+                self::assertInstanceOf(OCSPResponse::class, $OCSPResponse);
+
+                $responses = $OCSPResponse->getBasicOCSPResponse()->getTbsResponseData()->getResponses();
+                foreach ($responses as $response) {
+                    self::assertTrue($response->getCertStatus()->isRevoked());
+                }
+
+                break;
+            }
+        }
+    }
+
     public function testSimple()
     {
         $signedData = SignedData::createFromContent($this->getFullCMS());
@@ -46,7 +78,7 @@ class OCSPRequestTest extends MainTest
 
     public function testWithSignature()
     {
-        $OCSPRequest = OCSPRequest::createFromContent($this->OCSPRequestWithSignature());
+        $OCSPRequest = OCSPRequest::createFromContent($this->getOCSPRequestWithSignature());
 
         $optionalSignature = $OCSPRequest->getOptionalSignature();
 
