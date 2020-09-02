@@ -68,8 +68,9 @@ class SignerInfo extends \Adapik\CMS\SignerInfo
     public function getUnsignedAttributes()
     {
         $unsignedAttributes = $this->findUnsignedAttributes();
+
         if ($unsignedAttributes) {
-            return new UnsignedAttributes($this->findUnsignedAttributes());
+            return new UnsignedAttributes($unsignedAttributes);
         }
         return null;
     }
@@ -90,5 +91,20 @@ class SignerInfo extends \Adapik\CMS\SignerInfo
         }
 
         return $this->getUnsignedAttributes();
+    }
+
+    /**
+     * @return $this
+     * @throws \FG\ASN1\Exception\Exception
+     */
+    public function deleteUnsignedAttributes()
+    {
+        $unsignedAttributes = $this->findUnsignedAttributes();
+
+        if ($unsignedAttributes) {
+            $this->object->removeChild($unsignedAttributes);
+        }
+
+        return $this;
     }
 }
