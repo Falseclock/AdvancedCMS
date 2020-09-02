@@ -58,6 +58,10 @@ class SignerInfoTest extends MainTest
 
             self::assertInstanceOf(RevocationValues::class, $unsignedAttributes->getRevocationValues());
             self::assertInstanceOf(TimeStampToken::class, $unsignedAttributes->getTimeStampToken());
+
+			$signerInfo->deleteUnsignedAttributes();
+
+			self::assertNull($signerInfo->getUnsignedAttributes());
         }
     }
 
