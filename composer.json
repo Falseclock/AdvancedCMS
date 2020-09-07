@@ -1,0 +1,55 @@
+{
+  "name": "falselock/advanced-cms",
+  "description": "A PHP Library that allows you to manipulate CMS.",
+  "type": "library",
+  "homepage": "https://github.com/Falseclock/AdvancedCMS",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Nurlan Mukhanov",
+      "email": "nurike@gmail.com",
+      "homepage": "https://github.com/Falseclock/",
+      "role": "Author"
+    }
+  ],
+  "keywords": [
+    "cms",
+    "pkcs7",
+    "cades",
+    "x690",
+    "asn1",
+    "asn.1",
+    "ber",
+    "der",
+    "binary",
+    "encoding",
+    "decoding"
+  ],
+  "repositories":      [
+    {
+      "name": "adapik/cms",
+      "type": "vcs",
+      "url":  "https://github.com/Falseclock/CMS"
+    }
+  ],
+  "require": {
+    "php": ">=7.2",
+    "adapik/phpasn1": "^2.2",
+    "adapik/cms": "dev-master"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8.5.8",
+    "satooshi/php-coveralls": "^1.0",
+    "ext-curl": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Falseclock\\AdvancedCMS\\": "src/AdvancedCMS/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Falseclock\\AdvancedCMS\\Test\\": "tests/AdvancedCMS/"
+    }
+  }
+}
