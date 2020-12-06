@@ -34,7 +34,7 @@ class RevocationValues extends \Adapik\CMS\RevocationValues
      * @return RevocationValues
      * @throws ParserException
      */
-    public static function createFromOCSPResponse(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null, ?Sequence $otherRevValues = null)
+    public static function createFromOCSPResponse(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null, ?Sequence $otherRevValues = null): self
     {
         return new self(self::sequenceFromOCSPResponse($basicOCSPResponse, $certificateList, $otherRevValues));
     }
@@ -46,7 +46,7 @@ class RevocationValues extends \Adapik\CMS\RevocationValues
      * @return Sequence
      * @throws ParserException
      */
-    public static function sequenceFromOCSPResponse(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null, ?Sequence $otherRevValues = null)
+    public static function sequenceFromOCSPResponse(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null, ?Sequence $otherRevValues = null): Sequence
     {
         if (is_null($basicOCSPResponse) and is_null($certificateList) and is_null($otherRevValues)) {
             throw new Exception("At least 1 parameter must be not null");

@@ -32,15 +32,15 @@ class OCSPResponseStatus extends CMSBase
      * @return OCSPResponseStatus
      * @throws FormatException
      */
-    public static function createFromContent(string $content)
+    public static function createFromContent(string $content): self
     {
         return new self(self::makeFromContent($content, Maps\OCSPResponseStatus::class, Enumerated::class));
     }
 
     /**
-     * @return mixed
+     * @return array
      */
-    public function getMapping()
+    public function getMapping(): array
     {
         return Maps\OCSPResponseStatus::MAP['mapping'];
     }
@@ -50,7 +50,7 @@ class OCSPResponseStatus extends CMSBase
      *
      * @return bool
      */
-    public function isSuccessful()
+    public function isSuccessful(): bool
     {
         return intval($this->object->value) === 0;
     }

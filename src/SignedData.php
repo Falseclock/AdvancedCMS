@@ -31,7 +31,7 @@ class SignedData extends \Adapik\CMS\SignedData
      * @return SignedData
      * @throws FormatException
      */
-    public static function createFromContent(string $content)
+    public static function createFromContent(string $content): self
     {
         return new self(self::makeFromContent($content, \Adapik\CMS\Maps\SignedData::class, Sequence::class));
     }
@@ -42,7 +42,7 @@ class SignedData extends \Adapik\CMS\SignedData
      * @return $this
      * @throws Exception
      */
-    public function mergeCMS(SignedData $signedData)
+    public function mergeCMS(SignedData $signedData): SignedData
     {
         $initialContent = $this->getSignedDataContent();
         $newContent = $signedData->getSignedDataContent();
@@ -83,7 +83,7 @@ class SignedData extends \Adapik\CMS\SignedData
      * @return SignedDataContent
      * @throws Exception
      */
-    public function getSignedDataContent()
+    public function getSignedDataContent(): SignedDataContent
     {
         $SignedDataContent = $this->object->findChildrenByType(ExplicitlyTaggedObject::class)[0];
 

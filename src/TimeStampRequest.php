@@ -43,7 +43,7 @@ class TimeStampRequest extends CMSBase
      * @return TimeStampRequest
      * @throws FormatException
      */
-    public static function createFromContent(string $content)
+    public static function createFromContent(string $content): self
     {
         return new self(self::makeFromContent($content, Maps\TimeStampRequest::class, Sequence::class));
     }
@@ -54,7 +54,7 @@ class TimeStampRequest extends CMSBase
      * @return TimeStampRequest
      * @throws Exception
      */
-    public static function createSimple(OctetString $data, string $hashAlgorithmOID = Algorithm::OID_SHA256)
+    public static function createSimple(OctetString $data, string $hashAlgorithmOID = Algorithm::OID_SHA256): TimeStampRequest
     {
         $tspRequest = Sequence::create([
             # version
@@ -79,8 +79,9 @@ class TimeStampRequest extends CMSBase
     /**
      * @return Boolean
      * @throws Exception
+     * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
      */
-    public function getCertReq()
+    public function getCertReq(): \FG\ASN1\Universal\Boolean
     {
         /** @var Boolean $boolean */
         $boolean = $this->object->findChildrenByType(Boolean::class)[0]->getBinary();
@@ -92,7 +93,7 @@ class TimeStampRequest extends CMSBase
      * @return MessageImprint
      * @throws Exception
      */
-    public function getMessageImprint()
+    public function getMessageImprint(): MessageImprint
     {
         return new MessageImprint($this->object->findChildrenByType(Sequence::class)[0]);
     }

@@ -39,7 +39,7 @@ class UnsignedAttributes extends \Adapik\CMS\UnsignedAttributes
      * @throws ParserException
      * @see \Adapik\CMS\Maps\RevocationValues
      */
-    public function setRevocationValues(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null, ?Sequence $otherRevValues = null)
+    public function setRevocationValues(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null, ?Sequence $otherRevValues = null): \Adapik\CMS\UnsignedAttributes
     {
         $revocationValues = RevocationValues::sequenceFromOCSPResponse($basicOCSPResponse, $certificateList, $otherRevValues);
 
@@ -62,7 +62,7 @@ class UnsignedAttributes extends \Adapik\CMS\UnsignedAttributes
      * @throws Exception
      * @throws ParserException
      */
-    public function setTimeStampToken(TimeStampResponse $response)
+    public function setTimeStampToken(TimeStampResponse $response): \Adapik\CMS\UnsignedAttributes
     {
         $timeStampTokenSequence = TimeStampToken::sequenceFromTimeStampResponse($response);
 
@@ -98,7 +98,7 @@ class UnsignedAttributes extends \Adapik\CMS\UnsignedAttributes
      * @return $this
      * @throws ParserException
      */
-    public function appendAttribute(UnsignedAttribute $unsignedAttribute)
+    public function appendAttribute(UnsignedAttribute $unsignedAttribute): UnsignedAttributes
     {
         $binary = $unsignedAttribute->getBinary();
 
@@ -114,7 +114,7 @@ class UnsignedAttributes extends \Adapik\CMS\UnsignedAttributes
      * @throws Exception
      * @throws ParserException
      */
-    public function replaceAttribute(string $oid, UnsignedAttribute $unsignedAttribute)
+    public function replaceAttribute(string $oid, UnsignedAttribute $unsignedAttribute): UnsignedAttributes
     {
         $binary = $unsignedAttribute->getBinary();
         $child = $this->findByOid($oid);

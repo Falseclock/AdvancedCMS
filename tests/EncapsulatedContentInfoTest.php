@@ -36,6 +36,12 @@ class EncapsulatedContentInfoTest extends MainTest
         self::assertEquals(true, $newOneSignedData->hasData());
 
         self::assertEquals(OctetString::createFromString("new data"), $newOneSignedData->getSignedDataContent()->getEncapsulatedContentInfo()->getEContent());
+
+        // Set again to check replacement
+        $newSignedData->getSignedDataContent()->getEncapsulatedContentInfo()->setEContent($octetString);
+        self::assertIsBool($newOneSignedData->hasData());
+        self::assertEquals(true, $newOneSignedData->hasData());
+        self::assertEquals(OctetString::createFromString("new data"), $newOneSignedData->getSignedDataContent()->getEncapsulatedContentInfo()->getEContent());
     }
 
     public function testContentManipulate()

@@ -18,7 +18,7 @@ abstract class PKIStatusInfo
      * PKIStatusInfo ::= SEQUENCE {
      *      status        PKIStatus,
      *      --XXX dont implement PKIXCMP yet
-     *      --    statusString  PKIFreeText     OPTIONAL,
+     *      statusString  PKIFreeText     OPTIONAL,
      *      failInfo      PKIFailureInfo  OPTIONAL
      * }
      *
@@ -62,6 +62,13 @@ abstract class PKIStatusInfo
         'type' => Identifier::SEQUENCE,
         'children' => [
             'status' => ['type' => Identifier::INTEGER],
+            'statusString' => [
+                'optional' => true,
+                'type' => Identifier::SEQUENCE,
+                'children' => [
+                    'statusString' => ['type' => Identifier::UTF8_STRING],
+                ]
+            ],
             'failInfo' => ['optional' => true, 'type' => Identifier::BITSTRING],
         ]
     ];

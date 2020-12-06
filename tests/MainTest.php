@@ -43,6 +43,11 @@ abstract class MainTest extends TestCase
         return file_get_contents(__DIR__ . '/fixtures/TimeStampResponse.pem');
     }
 
+    public function getBadTimeStampResponse()
+    {
+        return file_get_contents(__DIR__ . '/fixtures/BadTimeStampResponse.pem');
+    }
+
     public function getOCSPRequest()
     {
         return file_get_contents(__DIR__ . '/fixtures/OCSPRequest.pem');

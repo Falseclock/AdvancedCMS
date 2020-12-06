@@ -37,7 +37,7 @@ class TBSRequest extends CMSBase
      * @return TBSRequest
      * @throws FormatException
      */
-    public static function createFromContent(string $content)
+    public static function createFromContent(string $content): self
     {
         return new self(self::makeFromContent($content, Maps\TBSRequest::class, Sequence::class));
     }
@@ -46,7 +46,7 @@ class TBSRequest extends CMSBase
      * @return GeneralName
      * @throws Exception
      */
-    public function getRequesterName()
+    public function getRequesterName(): ?GeneralName
     {
         /** @var ExplicitlyTaggedObject[] $tags */
         $tags = $this->object->findChildrenByType(ExplicitlyTaggedObject::class);
@@ -62,7 +62,7 @@ class TBSRequest extends CMSBase
      * @return Request[]
      * @throws Exception
      */
-    public function getRequestList()
+    public function getRequestList(): array
     {
         $requests = [];
         /** @var Sequence[] $requestList */
@@ -78,7 +78,7 @@ class TBSRequest extends CMSBase
      * @return Extension[]
      * @throws Exception
      */
-    public function getRequestExtensions()
+    public function getRequestExtensions(): array
     {
         /** @var ExplicitlyTaggedObject[] $tags */
         $tags = $this->object->findChildrenByType(ExplicitlyTaggedObject::class);

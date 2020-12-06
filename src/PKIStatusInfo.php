@@ -12,6 +12,8 @@ namespace Falseclock\AdvancedCMS;
 
 use Adapik\CMS\CMSBase;
 use Adapik\CMS\Exception\FormatException;
+use Exception;
+use FG\ASN1\Universal\BitString;
 use FG\ASN1\Universal\Sequence;
 
 /**
@@ -32,7 +34,7 @@ class PKIStatusInfo extends CMSBase
      * @return PKIStatusInfo
      * @throws FormatException
      */
-    public static function createFromContent(string $content)
+    public static function createFromContent(string $content): self
     {
         return new self(self::makeFromContent($content, Maps\PKIStatusInfo::class, Sequence::class));
     }
@@ -40,7 +42,7 @@ class PKIStatusInfo extends CMSBase
     /**
      * @return bool
      */
-    public function isGranted()
+    public function isGranted(): bool
     {
         return $this->getStatus() == 0;
     }
@@ -48,7 +50,7 @@ class PKIStatusInfo extends CMSBase
     /**
      * @return int
      */
-    public function getStatus()
+    public function getStatus(): int
     {
         $integer = $this->object->getChildren()[0];
 
@@ -56,14 +58,33 @@ class PKIStatusInfo extends CMSBase
     }
 
     /**
-     * @return string
+     * @return string|null
+     * @throws Exception
      */
-    public function getFailInfo()
+    public function getStatusString(): ?string
+    {
+        $children = $this->object->getChildren();
+        if (count($children) > 1) {
+            $utf8Strings = $this->object->findChildrenByType(Sequence::class);
+            if (count($utf8Strings) > 0) {
+                return $utf8Strings[0]->__toString();
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return string|null
+     * @throws Exception
+     */
+    public function getFailureInfo(): ?string
     {
         $children = $this->object->getChildren();
 
-        if (count($children) == 2) {
-            return $children[1]->__toString();
+        if (count($children) > 1) {
+            $bitStrings = $this->object->findChildrenByType(BitString::class);
+            return $bitStrings[0]->__toString();
         }
         return null;
     }

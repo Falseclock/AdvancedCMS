@@ -32,7 +32,7 @@ class SignedDataContent extends \Adapik\CMS\SignedDataContent
      * @return SignedDataContent
      * @throws ParserException
      */
-    public function appendDigestAlgorithmIdentifier(AlgorithmIdentifier $algorithmIdentifier)
+    public function appendDigestAlgorithmIdentifier(AlgorithmIdentifier $algorithmIdentifier): self
     {
         $binary = $algorithmIdentifier->getBinary();
         $this->object->getChildren()[1]->appendChild(Sequence::fromBinary($binary));
@@ -45,7 +45,7 @@ class SignedDataContent extends \Adapik\CMS\SignedDataContent
      * @return SignedDataContent
      * @throws ParserException
      */
-    public function appendCertificate(Certificate $certificate)
+    public function appendCertificate(Certificate $certificate): self
     {
         $binary = $certificate->getBinary();
         // FIXME: if getCertificates returns null, cause it is optional field, probably need create
@@ -59,7 +59,7 @@ class SignedDataContent extends \Adapik\CMS\SignedDataContent
      * @return SignedDataContent
      * @todo implement
      */
-    public function appendRevocationInfoChoices(RevocationInfoChoices $revocationInfoChoice)
+    public function appendRevocationInfoChoices(RevocationInfoChoices $revocationInfoChoice): self
     {
         return $this;
     }
@@ -69,7 +69,7 @@ class SignedDataContent extends \Adapik\CMS\SignedDataContent
      * @return SignedDataContent
      * @throws ParserException
      */
-    public function appendSignerInfo(SignerInfo $signerInfo)
+    public function appendSignerInfo(SignerInfo $signerInfo): self
     {
         $signerInfoSet = $this->object->findChildrenByType(Set::class)[1];
         $binary = $signerInfo->getBinary();
@@ -82,7 +82,7 @@ class SignedDataContent extends \Adapik\CMS\SignedDataContent
      * @return SignerInfo[]
      * @throws Exception
      */
-    public function getSignerInfoSet()
+    public function getSignerInfoSet(): array
     {
         /** @var SignerInfo[] $children */
         $children = $this->findSignerInfoChildren();
@@ -98,7 +98,7 @@ class SignedDataContent extends \Adapik\CMS\SignedDataContent
      * @return EncapsulatedContentInfo
      * @throws Exception
      */
-    public function getEncapsulatedContentInfo()
+    public function getEncapsulatedContentInfo(): EncapsulatedContentInfo
     {
         /** @var ExplicitlyTaggedObject $EncapsulatedContentInfoSet */
         $sequence = $this->object->findChildrenByType(Sequence::class)[0];

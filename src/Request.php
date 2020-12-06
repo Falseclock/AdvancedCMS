@@ -35,7 +35,7 @@ class Request extends CMSBase
      * @return Request
      * @throws FormatException
      */
-    public static function createFromContent(string $content)
+    public static function createFromContent(string $content): self
     {
         return new self(self::makeFromContent($content, Maps\Request::class, Sequence::class));
     }
@@ -43,7 +43,7 @@ class Request extends CMSBase
     /**
      * @return CertID
      */
-    public function getRequestedCertificate()
+    public function getRequestedCertificate(): CertID
     {
         return new CertID($this->object->getChildren()[0]);
     }

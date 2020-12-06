@@ -35,7 +35,7 @@ class OCSPResponse extends CMSBase
      * @return OCSPResponse
      * @throws FormatException
      */
-    public static function createFromContent(string $content)
+    public static function createFromContent(string $content): self
     {
         return new self(self::makeFromContent($content, Maps\OCSPResponse::class, Sequence::class));
     }
@@ -43,7 +43,7 @@ class OCSPResponse extends CMSBase
     /**
      * @return OCSPResponseStatus
      */
-    public function getResponseStatus()
+    public function getResponseStatus(): OCSPResponseStatus
     {
         $enum = $this->object->getChildren()[0];
 
@@ -51,20 +51,26 @@ class OCSPResponse extends CMSBase
     }
 
     /**
-     * @return BasicOCSPResponse
+     * @return BasicOCSPResponse|null
      * @throws FormatException
      */
-    public function getBasicOCSPResponse()
+    public function getBasicOCSPResponse(): ?BasicOCSPResponse
     {
-        return BasicOCSPResponse::createFromContent($this->getResponseBytes()->getResponse());
+        $responseBytes = $this->getResponseBytes();
+
+        if (is_null($responseBytes))
+            return null;
+        else
+            return BasicOCSPResponse::createFromContent($responseBytes->getResponse());
     }
 
     /**
      * Note: we lost parenthesis cause parsing binary content
-     * @return ResponseBytes|null
+     *
+     * @return ResponseBytes|null cause response if optional
      * @throws FormatException
      */
-    public function getResponseBytes()
+    public function getResponseBytes(): ?ResponseBytes
     {
         $children = $this->object->getChildren();
 

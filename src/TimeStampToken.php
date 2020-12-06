@@ -28,7 +28,7 @@ class TimeStampToken extends \Adapik\CMS\TimeStampToken
      * @return TimeStampToken
      * @throws ParserException
      */
-    public static function createFromTimeStampResponse(TimeStampResponse $timeStampResponse)
+    public static function createFromTimeStampResponse(TimeStampResponse $timeStampResponse): TimeStampToken
     {
         return new self(self::sequenceFromTimeStampResponse($timeStampResponse));
     }
@@ -38,7 +38,7 @@ class TimeStampToken extends \Adapik\CMS\TimeStampToken
      * @return Sequence
      * @throws ParserException
      */
-    public static function sequenceFromTimeStampResponse(TimeStampResponse $timeStampResponse)
+    public static function sequenceFromTimeStampResponse(TimeStampResponse $timeStampResponse): Sequence
     {
         $binary = $timeStampResponse->getSignedData()->getBinary();
 

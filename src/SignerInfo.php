@@ -26,13 +26,13 @@ use FG\ASN1\Universal\Sequence;
  */
 class SignerInfo extends \Adapik\CMS\SignerInfo
 {
-	/**
-	 * @param string $content
-	 *
-	 * @return \Adapik\CMS\SignerInfo
-	 * @throws FormatException
-	 */
-	public static function createFromContent(string $content)
+    /**
+     * @param string $content
+     *
+     * @return SignerInfo
+     * @throws FormatException
+     */
+	public static function createFromContent(string $content): self
 	{
 		return new self(self::makeFromContent($content, \Adapik\CMS\Maps\SignerInfo::class, Sequence::class));
 	}
@@ -43,7 +43,7 @@ class SignerInfo extends \Adapik\CMS\SignerInfo
      * @throws \FG\ASN1\Exception\Exception
      * @throws ParserException
      */
-    public function addUnsignedAttribute(UnsignedAttribute $newAttribute)
+    public function addUnsignedAttribute(UnsignedAttribute $newAttribute): SignerInfo
     {
         $UnsignedAttributes = $this->getUnsignedAttributes();
         if (is_null($UnsignedAttributes)) {
@@ -65,7 +65,7 @@ class SignerInfo extends \Adapik\CMS\SignerInfo
      * @return UnsignedAttributes|null
      * @throws Exception
      */
-    public function getUnsignedAttributes()
+    public function getUnsignedAttributes(): ?UnsignedAttributes
     {
         $unsignedAttributes = $this->findUnsignedAttributes();
 
@@ -80,7 +80,7 @@ class SignerInfo extends \Adapik\CMS\SignerInfo
      * @return UnsignedAttributes
      * @throws Exception
      */
-    protected function createUnsignedAttributes()
+    protected function createUnsignedAttributes(): ?UnsignedAttributes
     {
         $UnsignedAttribute = $this->getUnsignedAttributes();
 
@@ -97,7 +97,7 @@ class SignerInfo extends \Adapik\CMS\SignerInfo
      * @return $this
      * @throws \FG\ASN1\Exception\Exception
      */
-    public function deleteUnsignedAttributes()
+    public function deleteUnsignedAttributes(): SignerInfo
     {
         $unsignedAttributes = $this->findUnsignedAttributes();
 

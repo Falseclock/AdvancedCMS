@@ -34,7 +34,7 @@ class ResponseBytes extends CMSBase
      * @return ResponseBytes
      * @throws FormatException
      */
-    public static function createFromContent(string $content)
+    public static function createFromContent(string $content): self
     {
         return new self(self::makeFromContent($content, Maps\ResponseBytes::class, Sequence::class));
     }
@@ -42,7 +42,7 @@ class ResponseBytes extends CMSBase
     /**
      * @return string
      */
-    public function getResponseType()
+    public function getResponseType(): string
     {
         /** @var ObjectIdentifier $objectIdentifier */
         $objectIdentifier = $this->object->getChildren()[0];
@@ -53,7 +53,7 @@ class ResponseBytes extends CMSBase
     /**
      * @return string
      */
-    public function getResponse()
+    public function getResponse(): string
     {
         /** @var OctetString $octetString */
         $octetString = $this->object->getChildren()[1];

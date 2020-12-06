@@ -29,7 +29,7 @@ class EncapsulatedContentInfo extends \Adapik\CMS\EncapsulatedContentInfo
      * @return EncapsulatedContentInfo
      * @throws Exception
      */
-    public function setEContent(OctetString $octetString)
+    public function setEContent(OctetString $octetString): self
     {
         $children = $this->object->getChildren();
 
@@ -51,7 +51,7 @@ class EncapsulatedContentInfo extends \Adapik\CMS\EncapsulatedContentInfo
      * @return EncapsulatedContentInfo
      * @throws Exception
      */
-    public function unSetEContent()
+    public function unSetEContent(): self
     {
         $children = $this->object->getChildren();
         if (count($children) == 2) {

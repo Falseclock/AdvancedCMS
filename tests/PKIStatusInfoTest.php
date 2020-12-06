@@ -16,12 +16,23 @@ class PKIStatusInfoTest extends MainTest
         $PKIStatusInfo = PKIStatusInfo::createFromContent($PKIStatusInfo->getBinary());
 
         self::assertInstanceOf(PKIStatusInfo::class, $PKIStatusInfo);
-        self::assertNull($PKIStatusInfo->getFailInfo());
+        self::assertNull($PKIStatusInfo->getFailureInfo());
         self::assertIsInt($PKIStatusInfo->getStatus());
         self::assertEquals(0, $PKIStatusInfo->getStatus());
         self::assertIsBool($PKIStatusInfo->isGranted());
         self::assertEquals(true, $PKIStatusInfo->isGranted());
+        self::assertNull($PKIStatusInfo->getStatusString());
     }
 
-    // TODO: test failed response
+    public function testBad() {
+        $timeStampResponse = TimeStampResponse::createFromContent($this->getBadTimeStampResponse());
+        $PKIStatusInfo = $timeStampResponse->getStatusInfo();
+        self::assertIsInt($PKIStatusInfo->getStatus());
+        self::assertEquals(2, $PKIStatusInfo->getStatus());
+        self::assertIsBool($PKIStatusInfo->isGranted());
+        self::assertEquals(false, $PKIStatusInfo->isGranted());
+
+        self::assertNotNull($PKIStatusInfo->getFailureInfo());
+        self::assertIsString($PKIStatusInfo->getStatusString());
+    }
 }

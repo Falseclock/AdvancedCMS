@@ -34,7 +34,7 @@ class TimeStampResponse extends CMSBase
      * @return TimeStampResponse
      * @throws FormatException
      */
-    public static function createFromContent(string $content)
+    public static function createFromContent(string $content): self
     {
         return new self(self::makeFromContent($content, Maps\TimeStampResponse::class, Sequence::class));
     }
@@ -42,7 +42,7 @@ class TimeStampResponse extends CMSBase
     /**
      * @return PKIStatusInfo
      */
-    public function getStatusInfo()
+    public function getStatusInfo(): PKIStatusInfo
     {
         return new PKIStatusInfo($this->object->getChildren()[0]);
     }
@@ -50,7 +50,7 @@ class TimeStampResponse extends CMSBase
     /**
      * @return SignedData|null
      */
-    public function getSignedData()
+    public function getSignedData(): ?SignedData
     {
         $children = $this->object->getChildren();
 

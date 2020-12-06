@@ -46,7 +46,7 @@ class OCSPRequest extends CMSBase
      * @return OCSPRequest
      * @throws FormatException
      */
-    public static function createFromContent(string $content)
+    public static function createFromContent(string $content): self
     {
         return new self(self::makeFromContent($content, Maps\OCSPRequest::class, Sequence::class));
     }
@@ -59,7 +59,7 @@ class OCSPRequest extends CMSBase
      * @return OCSPRequest
      * @throws FormatException
      */
-    public static function createSimple(Certificate $publicCertificate, Certificate $intermediateCertificate, string $hashAlgorithmOID = Algorithm::OID_SHA1)
+    public static function createSimple(Certificate $publicCertificate, Certificate $intermediateCertificate, string $hashAlgorithmOID = Algorithm::OID_SHA1): self
     {
         /** @see Maps\TBSRequest */
         $tbsRequest = Sequence::create([
@@ -111,7 +111,7 @@ class OCSPRequest extends CMSBase
                 )
             ]
         );
-        // TODO: signature create and test
+
         return new self(Sequence::create([$tbsRequest/*, $optionalSignature*/]));
     }
 
@@ -120,7 +120,7 @@ class OCSPRequest extends CMSBase
      * @return string
      * @throws Exception
      */
-    protected static function generateNonce(int $length = null)
+    protected static function generateNonce(int $length = null): string
     {
         return random_bytes($length ?? self::OCSP_DEFAULT_NONCE_LENGTH);
     }
@@ -128,7 +128,7 @@ class OCSPRequest extends CMSBase
     /**
      * @return TBSRequest
      */
-    public function getTBSRequest()
+    public function getTBSRequest(): TBSRequest
     {
         return new TBSRequest($this->object->getChildren()[0]);
     }
@@ -137,7 +137,7 @@ class OCSPRequest extends CMSBase
      * @return Signature|null
      * @throws ParserException
      */
-    public function getOptionalSignature()
+    public function getOptionalSignature(): ?Signature
     {
         $children = $this->object->getChildren();
 

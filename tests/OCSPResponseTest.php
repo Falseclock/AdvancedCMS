@@ -7,6 +7,7 @@ use Adapik\CMS\BasicOCSPResponse;
 use Falseclock\AdvancedCMS\OCSPResponse;
 use Falseclock\AdvancedCMS\OCSPResponseStatus;
 use Falseclock\AdvancedCMS\ResponseBytes;
+use FG\ASN1\Universal\Sequence;
 
 class OCSPResponseTest extends MainTest
 {
@@ -17,5 +18,20 @@ class OCSPResponseTest extends MainTest
         self::assertInstanceOf(BasicOCSPResponse::class, $ocspResponse->getBasicOCSPResponse());
         self::assertInstanceOf(OCSPResponseStatus::class, $ocspResponse->getResponseStatus());
         self::assertInstanceOf(ResponseBytes::class, $ocspResponse->getResponseBytes());
+    }
+
+    public function testNullResponseBytes()
+    {
+        $binaryData = base64_decode($this->getOCSPResponse());
+        $ocspResponseSequence = Sequence::fromBinary($binaryData);
+
+        // simulating
+        $ocspResponseSequence->removeChild($ocspResponseSequence->getChildren()[1]);
+
+        $ocspResponse = OCSPResponse::createFromContent($ocspResponseSequence->getBinary());
+
+        self::assertNull($ocspResponse->getBasicOCSPResponse());
+        self::assertNull($ocspResponse->getResponseBytes());
+        self::assertInstanceOf(OCSPResponseStatus::class, $ocspResponse->getResponseStatus());
     }
 }
