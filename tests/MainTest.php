@@ -10,57 +10,57 @@ abstract class MainTest extends TestCase
 {
     public function getOCSPResponse()
     {
-        return file_get_contents(__DIR__ . '/../fixtures/OCSPResponse.pem');
+        return file_get_contents(__DIR__ . '/fixtures/OCSPResponse.pem');
     }
 
     public function getFullCMS()
     {
-        return file_get_contents(__DIR__ . '/../fixtures/full.cms');
+        return file_get_contents(__DIR__ . '/fixtures/full.cms');
     }
 
     public function getNoDataNoUnsignedCMS()
     {
-        return file_get_contents(__DIR__ . '/../fixtures/noDataNoUnsigned.cms');
+        return file_get_contents(__DIR__ . '/fixtures/noDataNoUnsigned.cms');
     }
 
     public function getWithDataNoUnsignedCMS()
     {
-        return file_get_contents(__DIR__ . '/../fixtures/withDataNoUnsigned.cms');
+        return file_get_contents(__DIR__ . '/fixtures/withDataNoUnsigned.cms');
     }
 
     public function getIntermediateCertificate()
     {
-        return file_get_contents(__DIR__ . '/../fixtures/intermediateCertificate.pem');
+        return file_get_contents(__DIR__ . '/fixtures/intermediateCertificate.pem');
     }
 
     public function getSetOfUnsignedCMS()
     {
-        return file_get_contents(__DIR__ . '/../fixtures/setOfUnsignedCMS.cms');
+        return file_get_contents(__DIR__ . '/fixtures/setOfUnsignedCMS.cms');
     }
 
     public function getTimeStampResponse()
     {
-        return file_get_contents(__DIR__ . '/../fixtures/TimeStampResponse.pem');
+        return file_get_contents(__DIR__ . '/fixtures/TimeStampResponse.pem');
     }
 
     public function getOCSPRequest()
     {
-        return file_get_contents(__DIR__ . '/../fixtures/OCSPRequest.pem');
+        return file_get_contents(__DIR__ . '/fixtures/OCSPRequest.pem');
     }
 
     public function getOCSPRequestWithSignature()
     {
-        return file_get_contents(__DIR__ . '/../fixtures/OCSPRequestWithSignature.pem');
+        return file_get_contents(__DIR__ . '/fixtures/OCSPRequestWithSignature.pem');
     }
 
 	public function getRevokedCertificate()
 	{
-		return file_get_contents(__DIR__ . '/../fixtures/revokedCertificate.pem');
+		return file_get_contents(__DIR__ . '/fixtures/revokedCertificate.pem');
 	}
 
 	public function getDoubleOCSPRequest()
 	{
-		return file_get_contents(__DIR__ . '/../fixtures/DoubleOCSPRequest.pem');
+		return file_get_contents(__DIR__ . '/fixtures/DoubleOCSPRequest.pem');
 	}
 
     protected function curlRequest(string $url, string $binaryContent, string $requestContentType, string $responseContentType)

@@ -1,0 +1,11 @@
+.idea/
+/.idea/
+.idea/*
+/.idea/*
+vendor
+vendor/*
+/composer.lock
+/.phpunit.result.cache
+/php-coveralls
+/phpunit
+/build/
