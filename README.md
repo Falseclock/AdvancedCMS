@@ -9,3 +9,10 @@ A PHP Library that allows you to decode and manipulate ASN.1 CMS using Basic Enc
 [![Total Downloads](https://poser.pugx.org/falselock/advanced-cms/downloads)](//packagist.org/packages/falselock/advanced-cms)
 [![Latest Unstable Version](https://poser.pugx.org/falselock/advanced-cms/v/unstable)](//packagist.org/packages/falselock/advanced-cms)
 [![License](https://poser.pugx.org/falselock/advanced-cms/license)](//packagist.org/packages/falselock/advanced-cms)
+
+Installation
+------------
+
+```bash
+composer require falselock/advanced-cms
+```
