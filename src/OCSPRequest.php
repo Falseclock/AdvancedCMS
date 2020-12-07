@@ -86,9 +86,9 @@ class OCSPRequest extends CMSBase
                                             ]
                                         ),
                                         # issuerNameHash
-                                        OctetString::createFromString($intermediateCertificate->getNameHash($hashAlgorithmOID)),
+                                        Algorithm::hashValue($hashAlgorithmOID, $intermediateCertificate->getSubject()->getBinary()),
                                         # issuerKeyHash
-                                        OctetString::createFromString($intermediateCertificate->getKeyHash($hashAlgorithmOID)),
+                                        Algorithm::hashValue($hashAlgorithmOID, $intermediateCertificate->getPublicKey()->getKey()->getBinary()),
                                         # serialNumber
                                         Integer::create($publicCertificate->getSerial())
                                     ]
