@@ -23,7 +23,9 @@
     "der",
     "binary",
     "encoding",
-    "decoding"
+    "decoding",
+    "gost",
+    "kalkan"
   ],
   "repositories":      [
     {
