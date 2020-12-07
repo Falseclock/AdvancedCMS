@@ -34,6 +34,56 @@ class SignerInfoTest extends MainTest
         }
     }
 
+    public function testCreateFromContent()
+    {
+        $signedData = SignedData::createFromContent($this->getWithDataNoUnsignedCMS());
+        foreach ($signedData->getSignedDataContent()->getSignerInfoSet() as $signerInfo) {
+            $binary = $signerInfo->getBinary();
+            $value = SignerInfo::createFromContent($binary);
+            self::assertInstanceOf(SignerInfo::class, $value);
+            self::assertEquals($value->getBinary(), $binary);
+        }
+    }
+
+    public function testReplaceAttribute()
+    {
+        $signedData = SignedData::createFromContent($this->getWithDataNoUnsignedCMS());
+        self::assertInstanceOf(SignedData::class, $signedData);
+
+        $signedDataContent = $signedData->getSignedDataContent();
+        self::assertInstanceOf(SignedDataContent::class, $signedDataContent);
+
+        foreach ($signedDataContent->getSignerInfoSet() as $signerInfo) {
+            self::assertInstanceOf(SignerInfo::class, $signerInfo);
+
+            $unsignedAttributes = $signerInfo->getUnsignedAttributes();
+
+            self::assertNull($unsignedAttributes);
+
+            $TimeStampResponse = TimeStampResponse::createFromContent($this->getTimeStampResponse());
+            $TimeStampToken = TimeStampToken::createFromTimeStampResponse($TimeStampResponse);
+            $signerInfo->addUnsignedAttribute($TimeStampToken);
+            $signerInfo->addUnsignedAttribute($TimeStampToken);
+
+            $unsignedAttributes = $signerInfo->getUnsignedAttributes();
+            $OCSPResponse = OCSPResponse::createFromContent($this->getOCSPResponse());
+            $unsignedAttributes->setRevocationValues($OCSPResponse->getBasicOCSPResponse());
+
+            $signerInfo->deleteUnsignedAttributes();
+
+            self::assertNull($signerInfo->getUnsignedAttributes());
+
+            $RevocationValues = RevocationValues::createFromOCSPResponse($OCSPResponse->getBasicOCSPResponse());
+            $signerInfo->addUnsignedAttribute($RevocationValues);
+            $unsignedAttributes = $signerInfo->getUnsignedAttributes();
+
+            self::assertNotNull($signerInfo->getUnsignedAttributes());
+
+            $unsignedAttributes->setTimeStampToken($TimeStampResponse);
+
+        }
+    }
+
     public function testUnsigned()
     {
         $signedData = SignedData::createFromContent($this->getSetOfUnsignedCMS());
@@ -59,9 +109,9 @@ class SignerInfoTest extends MainTest
             self::assertInstanceOf(RevocationValues::class, $unsignedAttributes->getRevocationValues());
             self::assertInstanceOf(TimeStampToken::class, $unsignedAttributes->getTimeStampToken());
 
-			$signerInfo->deleteUnsignedAttributes();
+            $signerInfo->deleteUnsignedAttributes();
 
-			self::assertNull($signerInfo->getUnsignedAttributes());
+            self::assertNull($signerInfo->getUnsignedAttributes());
         }
     }
 
