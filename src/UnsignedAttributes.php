@@ -13,6 +13,7 @@ namespace Falseclock\AdvancedCMS;
 use Adapik\CMS\BasicOCSPResponse;
 use Adapik\CMS\CertificateList;
 use Adapik\CMS\Interfaces\CMSInterface;
+use Adapik\CMS\TimeStampToken;
 use Adapik\CMS\UnsignedAttribute;
 use FG\ASN1\Exception\Exception;
 use FG\ASN1\Exception\ParserException;
@@ -88,7 +89,7 @@ class UnsignedAttributes extends \Adapik\CMS\UnsignedAttributes
     /**
      * @return TimeStampToken|CMSInterface|null
      */
-    public function getTimeStampToken()
+    public function getTimeStampToken(): ?TimeStampToken
     {
         return $this->getAttributeAsInstance(TimeStampToken::class);
     }

@@ -8,6 +8,11 @@ use PHPUnit\Framework\TestCase;
 
 abstract class MainTest extends TestCase
 {
+    public function getTimeStampResponseWithAccuracy()
+    {
+        return file_get_contents(__DIR__ . '/fixtures/TimeStampResponseWithAccuracy.pem');
+    }
+
     public function getOCSPResponse()
     {
         return file_get_contents(__DIR__ . '/fixtures/OCSPResponse.pem');
