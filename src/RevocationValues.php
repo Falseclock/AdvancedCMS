@@ -30,40 +30,27 @@ class RevocationValues extends \Adapik\CMS\RevocationValues
     /**
      * @param BasicOCSPResponse|null $basicOCSPResponse
      * @param CertificateList|null $certificateList
-     * @param Sequence|null $otherRevValues
      * @return RevocationValues
      * @throws ParserException
      */
-    public static function createFromOCSPResponse(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null, ?Sequence $otherRevValues = null): self
+    public static function createFromOCSPResponse(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null): self
     {
-        return new self(self::sequenceFromOCSPResponse($basicOCSPResponse, $certificateList, $otherRevValues));
+        return new self(self::sequenceFromOCSPResponse($basicOCSPResponse, $certificateList));
     }
 
     /**
      * @param BasicOCSPResponse|null $basicOCSPResponse
      * @param CertificateList|null $certificateList
-     * @param Sequence|null $otherRevValues
      * @return Sequence
      * @throws ParserException
      */
-    public static function sequenceFromOCSPResponse(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null, ?Sequence $otherRevValues = null): Sequence
+    public static function sequenceFromOCSPResponse(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null): Sequence
     {
-        if (is_null($basicOCSPResponse) and is_null($certificateList) and is_null($otherRevValues)) {
+        if (is_null($basicOCSPResponse) and is_null($certificateList)) {
             throw new Exception("At least 1 parameter must be not null");
         }
 
         $values = [];
-
-        if (!is_null($basicOCSPResponse)) {
-            $binary = $basicOCSPResponse->getBinary();
-
-            $values[] = ExplicitlyTaggedObject::create(1,
-                Sequence::create([
-                        Sequence::fromBinary($binary),
-                    ]
-                )
-            );
-        }
 
         if (!is_null($certificateList)) {
             $binary = $certificateList->getBinary();
@@ -76,10 +63,10 @@ class RevocationValues extends \Adapik\CMS\RevocationValues
             );
         }
 
-        if (!is_null($otherRevValues)) {
-            $binary = $otherRevValues->getBinary();
+        if (!is_null($basicOCSPResponse)) {
+            $binary = $basicOCSPResponse->getBinary();
 
-            $values[] = ExplicitlyTaggedObject::create(2,
+            $values[] = ExplicitlyTaggedObject::create(1,
                 Sequence::create([
                         Sequence::fromBinary($binary),
                     ]

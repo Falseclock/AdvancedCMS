@@ -23,6 +23,11 @@ abstract class MainTest extends TestCase
         return file_get_contents(__DIR__ . '/fixtures/TimeStampRequestWithPolicy.pem');
     }
 
+    public function getRevocationValues()
+    {
+        return file_get_contents(__DIR__ . '/fixtures/RevocationValues.pem');
+    }
+
     public function getFullCMS()
     {
         return file_get_contents(__DIR__ . '/fixtures/full.cms');
