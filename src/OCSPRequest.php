@@ -14,10 +14,10 @@ use Adapik\CMS\Algorithm;
 use Adapik\CMS\Certificate;
 use Adapik\CMS\CMSBase;
 use Adapik\CMS\Exception\FormatException;
-use Adapik\CMS\Signature;
 use Exception;
 use FG\ASN1\Exception\ParserException;
 use FG\ASN1\ExplicitlyTaggedObject;
+use FG\ASN1\Universal\BitString;
 use FG\ASN1\Universal\Integer;
 use FG\ASN1\Universal\NullObject;
 use FG\ASN1\Universal\ObjectIdentifier;
@@ -46,7 +46,7 @@ class OCSPRequest extends CMSBase
      * @return OCSPRequest
      * @throws FormatException
      */
-    public static function createFromContent(string $content): self
+    public static function createFromContent(string $content): CMSBase
     {
         return new self(self::makeFromContent($content, Maps\OCSPRequest::class, Sequence::class));
     }
@@ -58,6 +58,7 @@ class OCSPRequest extends CMSBase
      *
      * @return OCSPRequest
      * @throws FormatException
+     * @throws ParserException
      */
     public static function createSimple(Certificate $publicCertificate, Certificate $intermediateCertificate, string $hashAlgorithmOID = Algorithm::OID_SHA1): self
     {
@@ -86,10 +87,9 @@ class OCSPRequest extends CMSBase
                                             ]
                                         ),
                                         # issuerNameHash
-                                        Algorithm::hashValue($hashAlgorithmOID, $intermediateCertificate->getSubject()->getBinary()),
+                                        OctetString::createFromString(self::getNameHash($hashAlgorithmOID, $intermediateCertificate)),
                                         # issuerKeyHash
-                                        Algorithm::hashValue($hashAlgorithmOID, $intermediateCertificate->getPublicKey()->getKey()->getBinary()),
-                                        # serialNumber
+                                        OctetString::createFromString(self::getKeyHash($hashAlgorithmOID, $intermediateCertificate)),                                        # serialNumber
                                         Integer::create($publicCertificate->getSerial())
                                     ]
                                 )
@@ -147,5 +147,49 @@ class OCSPRequest extends CMSBase
         }
 
         return null;
+    }
+
+    /**
+     * @param string $algorithmOID
+     * @param Certificate $certificate
+     * @return string
+     * @throws FormatException
+     * @throws ParserException
+     */
+    private static function getNameHash(string $algorithmOID, Certificate $certificate): string
+    {
+        $binary = $certificate->getBinary();
+        /** @var Sequence $certificate */
+        $certificate = Sequence::fromBinary($binary);
+        return Algorithm::hashValue($algorithmOID, self::_getTBSCertificate($certificate)->getChildren()[5]->getBinary());
+    }
+
+    /**
+     * @param string $algorithmOID
+     * @param Certificate $certificate
+     * @return string
+     * @throws FormatException
+     * @throws ParserException
+     */
+    private static function getKeyHash(string $algorithmOID, Certificate $certificate): string
+    {
+        $binary = $certificate->getBinary();
+        /** @var Sequence $certificate */
+        $certificate = Sequence::fromBinary($binary);
+        $child = self::_getTBSCertificate($certificate)->getChildren()[6];
+        /** @var BitString $octet */
+        $octet = $child->findChildrenByType(BitString::class)[0];
+
+        return Algorithm::hashValue($algorithmOID, hex2bin($octet->getStringValue()));
+    }
+
+    /**
+     * @param Sequence $certificate
+     * @return Sequence
+     * @throws Exception
+     */
+    private static function _getTBSCertificate(Sequence $certificate): Sequence
+    {
+        return $certificate->findChildrenByType(Sequence::class)[0];
     }
 }

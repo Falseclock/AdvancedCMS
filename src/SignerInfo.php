@@ -10,6 +10,7 @@
 
 namespace Falseclock\AdvancedCMS;
 
+use Adapik\CMS\CMSBase;
 use Adapik\CMS\Exception\FormatException;
 use Adapik\CMS\UnsignedAttribute;
 use Exception;
@@ -32,7 +33,7 @@ class SignerInfo extends \Adapik\CMS\SignerInfo
      * @return SignerInfo
      * @throws FormatException
      */
-	public static function createFromContent(string $content): self
+	public static function createFromContent(string $content): CMSBase
 	{
 		return new self(self::makeFromContent($content, \Adapik\CMS\Maps\SignerInfo::class, Sequence::class));
 	}
@@ -65,7 +66,7 @@ class SignerInfo extends \Adapik\CMS\SignerInfo
      * @return UnsignedAttributes|null
      * @throws Exception
      */
-    public function getUnsignedAttributes(): ?UnsignedAttributes
+    public function getUnsignedAttributes(): ?\Adapik\CMS\UnsignedAttributes
     {
         $unsignedAttributes = $this->findUnsignedAttributes();
 

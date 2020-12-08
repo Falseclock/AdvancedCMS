@@ -45,8 +45,6 @@ class SignerInfoTest extends MainTest
         );
 
         $OCSPResponse->getBasicOCSPResponse();
-
-        return;
     }
 
     public function testNoUnsigned()

@@ -37,7 +37,7 @@ class TBSRequest extends CMSBase
      * @return TBSRequest
      * @throws FormatException
      */
-    public static function createFromContent(string $content): self
+    public static function createFromContent(string $content): CMSBase
     {
         return new self(self::makeFromContent($content, Maps\TBSRequest::class, Sequence::class));
     }

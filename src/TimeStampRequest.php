@@ -43,7 +43,7 @@ class TimeStampRequest extends CMSBase
      * @return TimeStampRequest
      * @throws FormatException
      */
-    public static function createFromContent(string $content): self
+    public static function createFromContent(string $content): CMSBase
     {
         return new self(self::makeFromContent($content, Maps\TimeStampRequest::class, Sequence::class));
     }

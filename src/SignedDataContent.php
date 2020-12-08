@@ -95,7 +95,7 @@ class SignedDataContent extends \Adapik\CMS\SignedDataContent
     }
 
     /**
-     * @return EncapsulatedContentInfo
+     * @return EncapsulatedContentInfo|\Adapik\CMS\EncapsulatedContentInfo
      * @throws Exception
      */
     public function getEncapsulatedContentInfo(): EncapsulatedContentInfo

@@ -7,9 +7,9 @@ use Adapik\CMS\Algorithm;
 use Adapik\CMS\AlgorithmIdentifier;
 use Adapik\CMS\Certificate;
 use Adapik\CMS\GeneralName;
-use Adapik\CMS\Signature;
 use Falseclock\AdvancedCMS\OCSPRequest;
 use Falseclock\AdvancedCMS\OCSPResponse;
+use Falseclock\AdvancedCMS\Signature;
 use Falseclock\AdvancedCMS\SignedData;
 use Falseclock\AdvancedCMS\TBSRequest;
 use FG\ASN1\Universal\BitString;
@@ -38,9 +38,12 @@ class OCSPRequestTest extends MainTest
                 $OCSPResponse = OCSPResponse::createFromContent($result);
                 self::assertInstanceOf(OCSPResponse::class, $OCSPResponse);
 
-                $responses = $OCSPResponse->getBasicOCSPResponse()->getTbsResponseData()->getResponses();
+                $basicOCSPResponse = $OCSPResponse->getBasicOCSPResponse();
+                $tbsResponseData = $basicOCSPResponse->getTbsResponseData();
+                $responses = $tbsResponseData->getResponses();
                 foreach ($responses as $response) {
-                    self::assertTrue($response->getCertStatus()->isRevoked());
+                    $status = $response->getCertStatus();
+                    self::assertTrue($status->isRevoked());
                 }
 
                 break;

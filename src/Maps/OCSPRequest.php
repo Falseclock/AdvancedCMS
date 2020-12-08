@@ -10,7 +10,6 @@
 
 namespace Falseclock\AdvancedCMS\Maps;
 
-use Adapik\CMS\Maps\Signature;
 use FG\ASN1\Identifier;
 
 abstract class OCSPRequest

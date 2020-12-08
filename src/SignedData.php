@@ -11,6 +11,7 @@
 
 namespace Falseclock\AdvancedCMS;
 
+use Adapik\CMS\CMSBase;
 use Adapik\CMS\Exception\FormatException;
 use Exception;
 use FG\ASN1\ExplicitlyTaggedObject;
@@ -31,7 +32,7 @@ class SignedData extends \Adapik\CMS\SignedData
      * @return SignedData
      * @throws FormatException
      */
-    public static function createFromContent(string $content): self
+    public static function createFromContent(string $content): CMSBase
     {
         return new self(self::makeFromContent($content, \Adapik\CMS\Maps\SignedData::class, Sequence::class));
     }

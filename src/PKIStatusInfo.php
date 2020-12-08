@@ -34,7 +34,7 @@ class PKIStatusInfo extends CMSBase
      * @return PKIStatusInfo
      * @throws FormatException
      */
-    public static function createFromContent(string $content): self
+    public static function createFromContent(string $content): CMSBase
     {
         return new self(self::makeFromContent($content, Maps\PKIStatusInfo::class, Sequence::class));
     }
