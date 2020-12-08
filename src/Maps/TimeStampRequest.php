@@ -48,6 +48,7 @@ abstract class TimeStampRequest
             'certReq' => [
                 'type' => Identifier::BOOLEAN,
                 'default' => true,
+                'optional' => true,
             ],
             'extensions' => [
                     'constant' => 0,

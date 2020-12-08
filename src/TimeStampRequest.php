@@ -81,12 +81,16 @@ class TimeStampRequest extends CMSBase
      * @throws Exception
      * @noinspection PhpUnnecessaryFullyQualifiedNameInspection
      */
-    public function getCertReq(): \FG\ASN1\Universal\Boolean
+    public function getCertReq(): ?\FG\ASN1\Universal\Boolean
     {
-        /** @var Boolean $boolean */
-        $boolean = $this->object->findChildrenByType(Boolean::class)[0]->getBinary();
+        $return = null;
+        $boolean = $this->object->findChildrenByType(Boolean::class);
+        if (count($boolean) > 0) {
+            $binary = $boolean[0]->getBinary();
+            $return = Boolean::fromBinary($binary);
+        }
 
-        return Boolean::fromBinary($boolean);
+        return $return;
     }
 
     /**
@@ -104,13 +108,14 @@ class TimeStampRequest extends CMSBase
      */
     public function getNonce()
     {
+        $return = null;
         $integers = $this->object->findChildrenByType(Integer::class);
         if (count($integers) == 2) {
             $binary = $integers[1]->getBinary();
-            return Integer::fromBinary($binary);
+            $return = Integer::fromBinary($binary);
         }
 
-        return null;
+        return $return;
     }
 
     /**
@@ -119,12 +124,13 @@ class TimeStampRequest extends CMSBase
      */
     public function getReqPolicy()
     {
+        $return = null;
         $objects = $this->object->findChildrenByType(ObjectIdentifier::class);
         if (count($objects)) {
             $binary = $objects[0]->getBinary();
-            return ObjectIdentifier::fromBinary($binary);
+            $return = ObjectIdentifier::fromBinary($binary);
         }
 
-        return null;
+        return $return;
     }
 }

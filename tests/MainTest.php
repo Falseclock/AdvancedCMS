@@ -18,6 +18,11 @@ abstract class MainTest extends TestCase
         return file_get_contents(__DIR__ . '/fixtures/OCSPResponse.pem');
     }
 
+    public function getTimeStampRequestWithPolicy()
+    {
+        return file_get_contents(__DIR__ . '/fixtures/TimeStampRequestWithPolicy.pem');
+    }
+
     public function getFullCMS()
     {
         return file_get_contents(__DIR__ . '/fixtures/full.cms');
@@ -48,6 +53,11 @@ abstract class MainTest extends TestCase
         return file_get_contents(__DIR__ . '/fixtures/TimeStampResponse.pem');
     }
 
+    public function getTimeStampResponseTSA()
+    {
+        return file_get_contents(__DIR__ . '/fixtures/response.tsr');
+    }
+
     public function getBadTimeStampResponse()
     {
         return file_get_contents(__DIR__ . '/fixtures/BadTimeStampResponse.pem');
@@ -63,15 +73,15 @@ abstract class MainTest extends TestCase
         return file_get_contents(__DIR__ . '/fixtures/OCSPRequestWithSignature.pem');
     }
 
-	public function getRevokedCertificate()
-	{
-		return file_get_contents(__DIR__ . '/fixtures/revokedCertificate.pem');
-	}
+    public function getRevokedCertificate()
+    {
+        return file_get_contents(__DIR__ . '/fixtures/revokedCertificate.pem');
+    }
 
-	public function getDoubleOCSPRequest()
-	{
-		return file_get_contents(__DIR__ . '/fixtures/DoubleOCSPRequest.pem');
-	}
+    public function getDoubleOCSPRequest()
+    {
+        return file_get_contents(__DIR__ . '/fixtures/DoubleOCSPRequest.pem');
+    }
 
     protected function curlRequest(string $url, string $binaryContent, string $requestContentType, string $responseContentType)
     {

@@ -8,10 +8,21 @@ use Falseclock\AdvancedCMS\TimeStampRequest;
 use Falseclock\AdvancedCMS\TimeStampResponse;
 use FG\ASN1\Universal\Boolean;
 use FG\ASN1\Universal\Integer;
+use FG\ASN1\Universal\ObjectIdentifier;
 use FG\ASN1\Universal\OctetString;
 
 class TimeStampRequestTest extends MainTest
 {
+    public function testPolicy()
+    {
+        $timeStampRequest = TimeStampRequest::createFromContent($this->getTimeStampRequestWithPolicy());
+
+        $policy = $timeStampRequest->getReqPolicy();
+        self::assertInstanceOf(ObjectIdentifier::class, $policy);
+        self::assertEquals("1.2.3.4.5.6.7.8.9", (string)$policy);
+        self::assertNull($timeStampRequest->getCertReq());
+    }
+
     function testCreate()
     {
         $binary = "123456";

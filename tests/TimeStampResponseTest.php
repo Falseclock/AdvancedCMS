@@ -11,7 +11,7 @@ class TimeStampResponseTest extends MainTest
 {
     public function testBase()
     {
-        $timeStampResponse = TimeStampResponse::createFromContent($this->getTimeStampResponse());
+        $timeStampResponse = TimeStampResponse::createFromContent($this->getTimeStampResponseTSA());
         self::assertInstanceOf(TimeStampResponse::class, $timeStampResponse);
 
         self::assertInstanceOf(SignedData::class, $timeStampResponse->getSignedData());

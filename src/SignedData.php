@@ -65,12 +65,12 @@ class SignedData extends \Adapik\CMS\SignedData
             $initialContent->appendCertificate($certificate);
         }
 
-        $revocationInfoChoices = $newContent->getRevocationInfoChoices();
+/*        $revocationInfoChoices = $newContent->getRevocationInfoChoices();
         if ($revocationInfoChoices) {
             foreach ($revocationInfoChoices as $revocationInfoChoice) {
                 $initialContent->appendRevocationInfoChoices($revocationInfoChoice);
             }
-        }
+        }*/
 
         foreach ($newContent->getSignerInfoSet() as $signerInfo) {
             $initialContent->appendSignerInfo($signerInfo);

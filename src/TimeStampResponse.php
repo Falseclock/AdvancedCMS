@@ -52,12 +52,13 @@ class TimeStampResponse extends CMSBase
      */
     public function getSignedData(): ?SignedData
     {
+        $return = null;
         $children = $this->object->getChildren();
 
         if (count($children) == 2) {
-            return new SignedData($children[1]);
+            $return = new SignedData($children[1]);
         }
 
-        return null;
+        return $return;
     }
 }

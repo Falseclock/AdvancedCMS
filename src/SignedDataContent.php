@@ -59,10 +59,10 @@ class SignedDataContent extends \Adapik\CMS\SignedDataContent
      * @return SignedDataContent
      * @todo implement
      */
-    public function appendRevocationInfoChoices(RevocationInfoChoices $revocationInfoChoice): self
+/*    public function appendRevocationInfoChoices(RevocationInfoChoices $revocationInfoChoice): self
     {
         return $this;
-    }
+    }*/
 
     /**
      * @param SignerInfo $signerInfo

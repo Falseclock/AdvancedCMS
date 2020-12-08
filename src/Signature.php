@@ -23,7 +23,7 @@ use FG\ASN1\Universal\Sequence;
  * Class Signature
  *
  * @see     Maps\Signature
- * @package Adapik\CMS
+ * @package Falseclock\AdvancedCMS
  */
 class Signature extends CMSBase
 {
