@@ -1,6 +1,9 @@
 os: linux
 language: php
 dist: trusty
+env:
+  global:
+    - XDEBUG_MODE=coverage
 
 php:
   - 7.3
