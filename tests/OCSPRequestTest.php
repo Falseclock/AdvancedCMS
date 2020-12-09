@@ -12,6 +12,7 @@ use Falseclock\AdvancedCMS\OCSPResponse;
 use Falseclock\AdvancedCMS\Signature;
 use Falseclock\AdvancedCMS\SignedData;
 use Falseclock\AdvancedCMS\TBSRequest;
+use Falseclock\AdvancedCMS\Template;
 use FG\ASN1\Universal\BitString;
 
 class OCSPRequestTest extends MainTest
@@ -29,7 +30,7 @@ class OCSPRequestTest extends MainTest
     {
         $certificate = Certificate::createFromContent($this->getRevokedCertificate());
         $intermediateCertificate = Certificate::createFromContent($this->getIntermediateCertificate());
-        $OCSPRequest = OCSPRequest::createSimple($certificate, $intermediateCertificate, Algorithm::OID_SHA256);
+        $OCSPRequest = Template::OCSPRequest($certificate, $intermediateCertificate, Algorithm::OID_SHA256);
 
         foreach ($certificate->getOcspUris() as $url) {
             $result = $this->curlRequest($url, $OCSPRequest->getBinary(), OCSPRequest::CONTENT_TYPE, OCSPResponse::CONTENT_TYPE);
@@ -58,7 +59,7 @@ class OCSPRequestTest extends MainTest
 
         $intermediateCertificate = Certificate::createFromContent($this->getIntermediateCertificate());
 
-        $OCSPRequest = OCSPRequest::createSimple($certificate, $intermediateCertificate, Algorithm::OID_SHA256);
+        $OCSPRequest = Template::OCSPRequest($certificate, $intermediateCertificate, Algorithm::OID_SHA256);
 
         self::assertInstanceOf(TBSRequest::class, $OCSPRequest->getTBSRequest());
         self::assertNull($OCSPRequest->getOptionalSignature());
