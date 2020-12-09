@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Falseclock\AdvancedCMS\Test;
 
 use Adapik\CMS\MessageImprint;
+use Falseclock\AdvancedCMS\Template;
 use Falseclock\AdvancedCMS\TimeStampRequest;
 use Falseclock\AdvancedCMS\TimeStampResponse;
 use FG\ASN1\Universal\Boolean;
@@ -26,7 +27,7 @@ class TimeStampRequestTest extends MainTest
     function testCreate()
     {
         $binary = "123456";
-        $timeStampRequest = TimeStampRequest::createSimple(OctetString::createFromString($binary));
+        $timeStampRequest = Template::TimeStampRequest(OctetString::createFromString($binary));
 
         $timeStampRequest = TimeStampRequest::createFromContent($timeStampRequest->getBinary());
 

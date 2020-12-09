@@ -10,7 +10,6 @@
 
 namespace Falseclock\AdvancedCMS;
 
-use Adapik\CMS\Algorithm;
 use Adapik\CMS\CMSBase;
 use Adapik\CMS\Exception\FormatException;
 use Adapik\CMS\MessageImprint;
@@ -18,9 +17,7 @@ use Exception;
 use FG\ASN1\ASN1ObjectInterface;
 use FG\ASN1\Universal\Boolean;
 use FG\ASN1\Universal\Integer;
-use FG\ASN1\Universal\NullObject;
 use FG\ASN1\Universal\ObjectIdentifier;
-use FG\ASN1\Universal\OctetString;
 use FG\ASN1\Universal\Sequence;
 
 /**
@@ -46,34 +43,6 @@ class TimeStampRequest extends CMSBase
     public static function createFromContent(string $content): CMSBase
     {
         return new self(self::makeFromContent($content, Maps\TimeStampRequest::class, Sequence::class));
-    }
-
-    /**
-     * @param OctetString|ASN1ObjectInterface $data data which should be queried with TS request
-     * @param string $hashAlgorithmOID
-     * @return TimeStampRequest
-     * @throws Exception
-     */
-    public static function createSimple(OctetString $data, string $hashAlgorithmOID = Algorithm::OID_SHA256): TimeStampRequest
-    {
-        $tspRequest = Sequence::create([
-            # version
-            Integer::create(1),
-            # messageImprint
-            Sequence::create([
-                Sequence::create([
-                    ObjectIdentifier::create($hashAlgorithmOID),
-                    NullObject::create(),
-                ]),
-                OctetString::createFromString(Algorithm::hashValue($hashAlgorithmOID, $data->getBinaryContent()))
-            ]),
-            # nonce
-            Integer::create(rand() << 32 | rand()),
-            # certReq
-            Boolean::create(true),
-        ]);
-
-        return new self($tspRequest);
     }
 
     /**
