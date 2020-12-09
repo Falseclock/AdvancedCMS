@@ -55,32 +55,15 @@ class RevocationValues extends \Adapik\CMS\RevocationValues
         if (!is_null($certificateList)) {
             $binary = $certificateList->getBinary();
 
-            $values[] = ExplicitlyTaggedObject::create(0,
-                Sequence::create([
-                        Sequence::fromBinary($binary),
-                    ]
-                )
-            );
+            $values[] = ExplicitlyTaggedObject::create(0, Sequence::create([Sequence::fromBinary($binary)]));
         }
 
         if (!is_null($basicOCSPResponse)) {
             $binary = $basicOCSPResponse->getBinary();
 
-            $values[] = ExplicitlyTaggedObject::create(1,
-                Sequence::create([
-                        Sequence::fromBinary($binary),
-                    ]
-                )
-            );
+            $values[] = ExplicitlyTaggedObject::create(1, Sequence::create([Sequence::fromBinary($binary)]));
         }
 
-        return Sequence::create([
-                ObjectIdentifier::create(\Adapik\CMS\RevocationValues::getOid()),
-                Set::create([
-                        Sequence::create($values),
-                    ]
-                ),
-            ]
-        );
+        return Sequence::create([ObjectIdentifier::create(\Adapik\CMS\RevocationValues::getOid()), Set::create([Sequence::create($values)]),]);
     }
 }
