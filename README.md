@@ -25,29 +25,16 @@ composer require falseclock/advanced-cms
 OCSP проверок или TSP меток, удалить электронный контент, чтобы оставить только подписи или просто объединить две разные подписи одних и тех же данных.
 Отправной точкой стала библиотека [adapik/cms](https://github.com/Adapik/CMS), в которой на тот момент не было детального описания всех возможных полей и данных в
 CAdES. Так начался долгий путь чтения RFC и написания [нескольких тысяч строк кода](https://github.com/Adapik/CMS/graphs/contributors) чтобы полностью и 
-детально описать рекомендации в виде библиотеки. Но по договоренности с Александром Даниловым, мы решили, что изначальная библиотека будет работать
-исключительно в режиме чтения, а все остальное, если я того желаю, могу сделать в виде отдельного пакета. Что, собственно, и было сделано.
+детально описать рекомендации в виде библиотеки. Но по договоренности с Александром Даниловым, мы решили, что изначальная библиотека будет, как и раньше,
+работать исключительно в режиме чтения, а все остальное, если я того желаю, могу сделать в виде отдельного пакета. Что, собственно, и было сделано.
 
 
 ## Манипуляторы
 
 * [EncapsulatedContentInfo](#EncapsulatedContentInfo)
 * [SignedData](#_SignedData_)
-* [OCSPRequest](#OCSPRequest)
-* [OCSPResponse](#OCSPResponse)
-* [OCSPResponseStatus](#OCSPResponseStatus)
-* [PKIStatusInfo](#PKIStatusInfo)
-* [Request](#Request)
-* [ResponseBytes](#ResponseBytes)
-* [RevocationValues](#RevocationValues)
-* [Signature](#Signature)
 * [SignedDataContent](#SignedDataContent)
 * [SignerInfo](#SignerInfo)
-* [TBSRequest](#TBSRequest)
-* [Template](#Template)
-* [TimeStampRequest](#TimeStampRequest)
-* [TimeStampResponse](#TimeStampResponse)
-* [TimeStampToken](#TimeStampToken)
 * [UnsignedAttributes](#UnsignedAttributes)
 
 * * *
@@ -91,7 +78,7 @@ public function unSetEContent(): self
 * * *
 
 # **SignedData**
-**SignedData** — объединение двух цифровых подписей в единую.
+**SignedData** — объект, включающий в себя все данные цифровой подписи.
 
 ## **Методы**
 
@@ -108,3 +95,55 @@ public function mergeCMS(SignedData $signedData): SignedData
 Метод позволяет собрать несколько CMS файлов в единый, если один и тот же файл был подписан разными системами, либо если каждая подпись хранится отдельно.
 
 * * *
+
+# **SignedDataContent**
+**SignedDataContent** — согласно [RFC5652](https://datatracker.ietf.org/doc/html/rfc5652#section-5.1) это последовательность нескольких элементов, который включает
+дайджест, подписанные данные, сертификаты, отзывы на сертификаты и данные по подписях.
+
+## **Методы**
+
+### **appendDigestAlgorithmIdentifier**
+
+appendDigestAlgorithmIdentifier — добавление в список текущих хэш алгоритмов, дополнительного, используемого в одной из подписей
+
+#### Описание
+
+```php
+public function appendDigestAlgorithmIdentifier(AlgorithmIdentifier $algorithmIdentifier): self
+```
+
+Неупорядоченный набор дайджестов (хэш алгоритмов) использованных в подписях. При этом, если в CMS находятся две или более подписи, с одним и тем же
+алгоритмом хеширования, наборы могут повторяться. Количество последовательностей алгоритмов в данном наборе соответствует количеству подписей.
+
+* * *
+
+### **appendCertificate**
+
+appendCertificate — добавление публичного сертификата как для одной из подписей, так и других вспомогательных.
+
+#### Описание
+
+```php
+public function appendCertificate(Certificate $certificate): self
+```
+
+Следует учесть, что наличие публичных сертификатов в CMS не является обязательным условием, так как согласно RFC это поле опциональное. Согласно тому же 
+[RFC5652](https://datatracker.ietf.org/doc/html/rfc5652#section-10.2.3) в этом наборе могут присутствовать как сертификаты самих подписей, так и промежуточные
+или же корневые сертификаты при необходимости.
+
+* * *
+
+### **appendSignerInfo**
+
+appendSignerInfo — добавление подписи в CMS, которая включает алгоритм хеширования, подпись, подписанные и неподписанные атрибуты.
+
+#### Описание
+
+```php
+public function appendSignerInfo(Certificate $certificate): self
+```
+
+Это тот самый метод, ради которого и затеялась разработка данной библиотеки. Позволяет объединять несколько подписей в единый CMS файл.
+
+* * *
+
