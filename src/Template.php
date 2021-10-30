@@ -31,15 +31,16 @@ class Template
      * @param string $hashAlgorithmOID
      * @return TimeStampRequest
      * @throws FormatException
+     * @throws Exception
      */
     public static function TimeStampRequest(OctetString $data, string $hashAlgorithmOID = Algorithm::OID_SHA256): TimeStampRequest
     {
-        $tspRequest = Sequence::create([Integer::create(1),Sequence::create([Sequence::create([
-                    ObjectIdentifier::create($hashAlgorithmOID),
-                    NullObject::create(),
-                ]),
-                OctetString::createFromString(Algorithm::hashValue($hashAlgorithmOID, $data->getBinaryContent()))
-            ]),
+        $tspRequest = Sequence::create([Integer::create(1), Sequence::create([Sequence::create([
+            ObjectIdentifier::create($hashAlgorithmOID),
+            NullObject::create(),
+        ]),
+            OctetString::createFromString(Algorithm::hashValue($hashAlgorithmOID, $data->getBinaryContent()))
+        ]),
             Integer::create(rand() << 32 | rand()),
             Boolean::create(true),
         ]);
@@ -54,29 +55,30 @@ class Template
      * @return OCSPRequest
      * @throws FormatException
      * @throws ParserException
+     * @throws Exception
      */
     public static function OCSPRequest(Certificate $publicCertificate, Certificate $intermediateCertificate, string $hashAlgorithmOID = Algorithm::OID_SHA1): OCSPRequest
     {
         /** @see Maps\TBSRequest */
-        $tbsRequest = Sequence::create([Sequence::create([ Sequence::create([ Sequence::create([Sequence::create([ ObjectIdentifier::create($hashAlgorithmOID),NullObject::create()
-                                            ]
-                                        ),
-                                        OctetString::createFromString(self::getNameHash($hashAlgorithmOID, $intermediateCertificate)),
-                                        OctetString::createFromString(self::getKeyHash($hashAlgorithmOID, $intermediateCertificate)),                                        # serialNumber
-                                        Integer::create($publicCertificate->getSerial())
-                                    ]
-                                )
+        $tbsRequest = Sequence::create([Sequence::create([Sequence::create([Sequence::create([Sequence::create([ObjectIdentifier::create($hashAlgorithmOID), NullObject::create()
                             ]
-                        )
-                    ]
-                ),
-                ExplicitlyTaggedObject::create(2,Sequence::create([ Sequence::create([
-                                    ObjectIdentifier::create(OCSPRequest::OID_OCSPNonce),
-                                    OctetString::createFromString(OctetString::createFromString((string)self::generateNonce())->getBinary())
-                                ]
-                            )
+                        ),
+                            OctetString::createFromString(self::getNameHash($hashAlgorithmOID, $intermediateCertificate)),
+                            OctetString::createFromString(self::getKeyHash($hashAlgorithmOID, $intermediateCertificate)),                                        # serialNumber
+                            Integer::create($publicCertificate->getSerial())
                         ]
                     )
+                    ]
+                )
+                ]
+            ),
+                ExplicitlyTaggedObject::create(2, Sequence::create([Sequence::create([
+                            ObjectIdentifier::create(OCSPRequest::OID_OCSPNonce),
+                            OctetString::createFromString(OctetString::createFromString(self::generateNonce())->getBinary())
+                        ]
+                    )
+                    ]
+                )
                 )
             ]
         );
@@ -90,6 +92,7 @@ class Template
      * @return string
      * @throws FormatException
      * @throws ParserException
+     * @throws Exception
      */
     private static function getNameHash(string $algorithmOID, Certificate $certificate): string
     {
@@ -115,6 +118,7 @@ class Template
      * @return string
      * @throws FormatException
      * @throws ParserException
+     * @throws Exception
      */
     public static function getKeyHash(string $algorithmOID, Certificate $certificate): string
     {
@@ -132,6 +136,7 @@ class Template
      * @param int|null $length
      * @return string
      * @throws Exception
+     * @noinspection PhpSameParameterValueInspection
      */
     private static function generateNonce(int $length = null): string
     {

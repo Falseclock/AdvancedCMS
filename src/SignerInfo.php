@@ -33,16 +33,17 @@ class SignerInfo extends \Adapik\CMS\SignerInfo
      * @return SignerInfo
      * @throws FormatException
      */
-	public static function createFromContent(string $content): CMSBase
-	{
-		return new self(self::makeFromContent($content, \Adapik\CMS\Maps\SignerInfo::class, Sequence::class));
-	}
+    public static function createFromContent(string $content): CMSBase
+    {
+        return new self(self::makeFromContent($content, \Adapik\CMS\Maps\SignerInfo::class, Sequence::class));
+    }
 
     /**
      * @param UnsignedAttribute $newAttribute
      * @return $this
      * @throws \FG\ASN1\Exception\Exception
      * @throws ParserException
+     * @throws Exception
      */
     public function addUnsignedAttribute(UnsignedAttribute $newAttribute): SignerInfo
     {
@@ -97,6 +98,7 @@ class SignerInfo extends \Adapik\CMS\SignerInfo
     /**
      * @return $this
      * @throws \FG\ASN1\Exception\Exception
+     * @throws Exception
      */
     public function deleteUnsignedAttributes(): SignerInfo
     {

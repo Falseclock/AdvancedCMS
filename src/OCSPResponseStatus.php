@@ -52,6 +52,7 @@ class OCSPResponseStatus extends CMSBase
      */
     public function isSuccessful(): bool
     {
+        /** @noinspection PhpCastIsUnnecessaryInspection */
         return intval($this->object->value) === 0;
     }
 }

@@ -43,6 +43,8 @@ class RevocationValues extends \Adapik\CMS\RevocationValues
      * @param CertificateList|null $certificateList
      * @return Sequence
      * @throws ParserException
+     * @throws Exception
+     * @noinspection PhpIncompatibleReturnTypeInspection
      */
     public static function sequenceFromOCSPResponse(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null): Sequence
     {

@@ -10,6 +10,7 @@
 
 namespace Falseclock\AdvancedCMS;
 
+use Exception;
 use FG\ASN1\Exception\ParserException;
 use FG\ASN1\Universal\ObjectIdentifier;
 use FG\ASN1\Universal\Sequence;
@@ -34,9 +35,11 @@ class TimeStampToken extends \Adapik\CMS\TimeStampToken
     }
 
     /**
-     * @param $timeStampResponse
+     * @param TimeStampResponse $timeStampResponse
      * @return Sequence
      * @throws ParserException
+     * @throws Exception
+     * @noinspection PhpIncompatibleReturnTypeInspection
      */
     public static function sequenceFromTimeStampResponse(TimeStampResponse $timeStampResponse): Sequence
     {

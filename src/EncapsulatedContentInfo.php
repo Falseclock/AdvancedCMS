@@ -26,8 +26,9 @@ class EncapsulatedContentInfo extends \Adapik\CMS\EncapsulatedContentInfo
      * Insert or update data content
      *
      * @param OctetString $octetString
+     *
      * @return EncapsulatedContentInfo
-     * @throws Exception
+     * @throws \Exception
      */
     public function setEContent(OctetString $octetString): self
     {
@@ -42,11 +43,10 @@ class EncapsulatedContentInfo extends \Adapik\CMS\EncapsulatedContentInfo
         return $this;
     }
 
-
     /**
      * Removing content if exist in case of necessity.
      * Actually we sign content hash and storing content not always strict.
-     * Moreover content can be very huge and heavy
+     * Moreover, content can be very huge and heavy
      *
      * @return EncapsulatedContentInfo
      * @throws Exception

@@ -72,10 +72,10 @@ class TimeStampRequest extends CMSBase
     }
 
     /**
-     * @return Integer|ASN1ObjectInterface|null
+     * @return ASN1ObjectInterface|null
      * @throws Exception
      */
-    public function getNonce()
+    public function getNonce(): ?ASN1ObjectInterface
     {
         $return = null;
         $integers = $this->object->findChildrenByType(Integer::class);
@@ -88,10 +88,10 @@ class TimeStampRequest extends CMSBase
     }
 
     /**
-     * @return ObjectIdentifier|ASN1ObjectInterface
+     * @return ASN1ObjectInterface
      * @throws Exception
      */
-    public function getReqPolicy()
+    public function getReqPolicy(): ?ASN1ObjectInterface
     {
         $return = null;
         $objects = $this->object->findChildrenByType(ObjectIdentifier::class);

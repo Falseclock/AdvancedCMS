@@ -31,6 +31,7 @@ class SignedDataContent extends \Adapik\CMS\SignedDataContent
      * @param AlgorithmIdentifier $algorithmIdentifier
      * @return SignedDataContent
      * @throws ParserException
+     * @throws Exception
      */
     public function appendDigestAlgorithmIdentifier(AlgorithmIdentifier $algorithmIdentifier): self
     {
@@ -44,6 +45,7 @@ class SignedDataContent extends \Adapik\CMS\SignedDataContent
      * @param Certificate $certificate
      * @return SignedDataContent
      * @throws ParserException
+     * @throws Exception
      */
     public function appendCertificate(Certificate $certificate): self
     {
@@ -59,15 +61,16 @@ class SignedDataContent extends \Adapik\CMS\SignedDataContent
      * @return SignedDataContent
      * @todo implement
      */
-/*    public function appendRevocationInfoChoices(RevocationInfoChoices $revocationInfoChoice): self
-    {
-        return $this;
-    }*/
+    /*    public function appendRevocationInfoChoices(RevocationInfoChoices $revocationInfoChoice): self
+        {
+            return $this;
+        }*/
 
     /**
      * @param SignerInfo $signerInfo
      * @return SignedDataContent
      * @throws ParserException
+     * @throws Exception
      */
     public function appendSignerInfo(SignerInfo $signerInfo): self
     {

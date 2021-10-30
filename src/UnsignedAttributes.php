@@ -33,15 +33,15 @@ class UnsignedAttributes extends \Adapik\CMS\UnsignedAttributes
      * @param BasicOCSPResponse|null $basicOCSPResponse
      *
      * @param CertificateList|null $certificateList
-     * @param Sequence|null $otherRevValues
      * @return \Adapik\CMS\UnsignedAttributes
      * @throws Exception
      * @throws ParserException
+     * @throws \Exception
      * @see \Adapik\CMS\Maps\RevocationValues
      */
-    public function setRevocationValues(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null, ?Sequence $otherRevValues = null): \Adapik\CMS\UnsignedAttributes
+    public function setRevocationValues(?BasicOCSPResponse $basicOCSPResponse = null, ?CertificateList $certificateList = null): \Adapik\CMS\UnsignedAttributes
     {
-        $revocationValues = RevocationValues::sequenceFromOCSPResponse($basicOCSPResponse, $certificateList, $otherRevValues);
+        $revocationValues = RevocationValues::sequenceFromOCSPResponse($basicOCSPResponse, $certificateList);
 
         $current = $this->findByOid(RevocationValues::getOid());
 
@@ -58,8 +58,9 @@ class UnsignedAttributes extends \Adapik\CMS\UnsignedAttributes
      * This function will append TimeStampToken with TSTInfo or create TimeStampToken as UnsignedAttribute
      *
      * @param TimeStampResponse $response
+     *
      * @return \Adapik\CMS\UnsignedAttributes
-     * @throws Exception
+     * @throws \Exception
      * @throws ParserException
      */
     public function setTimeStampToken(TimeStampResponse $response): \Adapik\CMS\UnsignedAttributes
@@ -80,7 +81,7 @@ class UnsignedAttributes extends \Adapik\CMS\UnsignedAttributes
     /**
      * @return RevocationValues|null|CMSInterface
      */
-    public function getRevocationValues()
+    public function getRevocationValues(): ?RevocationValues
     {
         return $this->getAttributeAsInstance(RevocationValues::class);
     }
@@ -88,7 +89,7 @@ class UnsignedAttributes extends \Adapik\CMS\UnsignedAttributes
     /**
      * @return TimeStampToken|CMSInterface|null
      */
-    public function getTimeStampToken()
+    public function getTimeStampToken(): ?TimeStampToken
     {
         return $this->getAttributeAsInstance(TimeStampToken::class);
     }
@@ -97,6 +98,7 @@ class UnsignedAttributes extends \Adapik\CMS\UnsignedAttributes
      * @param UnsignedAttribute $unsignedAttribute
      * @return $this
      * @throws ParserException
+     * @throws \Exception
      */
     public function appendAttribute(UnsignedAttribute $unsignedAttribute): UnsignedAttributes
     {

@@ -1,4 +1,11 @@
 <?php
+/**
+ * @author    Nurlan Mukhanov <nurike@gmail.com>
+ * @copyright 2020 Nurlan Mukhanov
+ * @license   https://en.wikipedia.org/wiki/MIT_License MIT License
+ * @link      https://github.com/Falseclock/AdvancedCMS
+ */
+
 declare(strict_types=1);
 
 namespace Falseclock\AdvancedCMS\Test;
@@ -24,7 +31,8 @@ class PKIStatusInfoTest extends MainTest
         self::assertNull($PKIStatusInfo->getStatusString());
     }
 
-    public function testBad() {
+    public function testBad()
+    {
         $timeStampResponse = TimeStampResponse::createFromContent($this->getBadTimeStampResponse());
         $PKIStatusInfo = $timeStampResponse->getStatusInfo();
         self::assertIsInt($PKIStatusInfo->getStatus());

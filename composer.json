@@ -1,6 +1,6 @@
 {
   "name": "falseclock/advanced-cms",
-  "description": "A PHP Library that allows you to manipulate CMS.",
+  "description": "A PHP Library that allows you to decode and manipulate CAdES or in other words CMS Advanced Electronic Signatures described in ETSI standart TS 101 733.",
   "type": "library",
   "homepage": "https://github.com/Falseclock/AdvancedCMS",
   "license": "MIT",
@@ -25,23 +25,19 @@
     "encoding",
     "decoding",
     "gost",
-    "kalkan"
-  ],
-  "repositories":      [
-    {
-      "name": "adapik/cms",
-      "type": "vcs",
-      "url":  "https://github.com/Falseclock/CMS"
-    }
+    "kalkan",
+    "эцп",
+    "signature",
+    "openssl"
   ],
   "require": {
     "php": ">=7.2",
-    "adapik/phpasn1": "^2.2",
-    "adapik/cms": "dev-master"
+    "adapik/phpasn1": "^2.3",
+    "adapik/cms": "^0.2"
   },
   "require-dev": {
-    "phpunit/phpunit": "^9.4.2",
-    "php-coveralls/php-coveralls": "^2.4.2",
+    "phpunit/phpunit": "^9.5.10",
+    "php-coveralls/php-coveralls": "^2.4.3",
     "ext-curl": "*"
   },
   "autoload": {
