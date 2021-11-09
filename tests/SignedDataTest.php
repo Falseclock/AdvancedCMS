@@ -10,15 +10,23 @@ declare(strict_types=1);
 
 namespace Falseclock\AdvancedCMS\Test;
 
+use Adapik\CMS\Exception\FormatException;
+use Exception;
 use Falseclock\AdvancedCMS\EncapsulatedContentInfo;
 use Falseclock\AdvancedCMS\SignedData;
 use Falseclock\AdvancedCMS\SignedDataContent;
 use Falseclock\AdvancedCMS\SignerInfo;
 use Falseclock\AdvancedCMS\UnsignedAttributes;
+use FG\ASN1\Exception\ParserException;
 use FG\ASN1\Universal\Sequence;
 
 class SignedDataTest extends MainTest
 {
+    /**
+     * @throws ParserException
+     * @throws FormatException
+     * @throws Exception
+     */
     public function testInstances()
     {
         // test from content
@@ -39,6 +47,10 @@ class SignedDataTest extends MainTest
         self::assertInstanceOf(UnsignedAttributes::class, $signerInfo->getUnsignedAttributes());
     }
 
+    /**
+     * @throws FormatException
+     * @throws Exception
+     */
     public function testMerge()
     {
         $signedData0 = SignedData::createFromContent(base64_decode($this->getNoDataNoUnsignedCMS()));
@@ -57,5 +69,16 @@ class SignedDataTest extends MainTest
         self::assertCount(
             count($signedData0->getSignedDataContent()->getSignerInfoSet()) + count($signedData2->getSignedDataContent()->getSignerInfoSet()),
             $signedData3->getSignedDataContent()->getSignerInfoSet());
+    }
+
+    /**
+     * @throws FormatException
+     * @throws Exception
+     */
+    public function testVerify()
+    {
+        $signedData = SignedData::createFromContent(base64_decode($this->DoubleSignOCSPAndTSPAndData()));
+
+        $signedData->verify();
     }
 }

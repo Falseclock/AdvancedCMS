@@ -95,6 +95,14 @@ abstract class MainTest extends TestCase
         return file_get_contents(__DIR__ . '/fixtures/DoubleOCSPRequest.pem');
     }
 
+    public function DoubleSignOCSPAndTSPAndData()
+    {
+        return file_get_contents(__DIR__ . '/fixtures/DoubleSignOCSPAndTSPAndData.cms');
+    }
+
+    /**
+     * @throws Exception
+     */
     protected function curlRequest(string $url, string $binaryContent, string $requestContentType, string $responseContentType)
     {
         $curl = curl_init();
