@@ -13,6 +13,7 @@ namespace Falseclock\AdvancedCMS;
 use Adapik\CMS\CertID;
 use Adapik\CMS\CMSBase;
 use Adapik\CMS\Exception\FormatException;
+use Adapik\CMS\Interfaces\CMSInterface;
 use FG\ASN1\Universal\Sequence;
 
 /**
@@ -35,7 +36,7 @@ class Request extends CMSBase
      * @return Request
      * @throws FormatException
      */
-    public static function createFromContent(string $content): CMSBase
+    public static function createFromContent(string $content): CMSInterface
     {
         return new self(self::makeFromContent($content, Maps\Request::class, Sequence::class));
     }

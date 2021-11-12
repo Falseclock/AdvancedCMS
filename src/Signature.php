@@ -14,6 +14,7 @@ use Adapik\CMS\AlgorithmIdentifier;
 use Adapik\CMS\Certificate;
 use Adapik\CMS\CMSBase;
 use Adapik\CMS\Exception\FormatException;
+use Adapik\CMS\Interfaces\CMSInterface;
 use FG\ASN1\Exception\ParserException;
 use FG\ASN1\ExplicitlyTaggedObject;
 use FG\ASN1\Universal\BitString;
@@ -37,7 +38,7 @@ class Signature extends CMSBase
      * @return Signature
      * @throws FormatException
      */
-    public static function createFromContent(string $content): CMSBase
+    public static function createFromContent(string $content): CMSInterface
     {
         return new self(self::makeFromContent($content, Maps\Signature::class, Sequence::class));
     }

@@ -12,8 +12,10 @@
 namespace Falseclock\AdvancedCMS;
 
 use Adapik\CMS\Algorithm;
+use Adapik\CMS\Certificate;
 use Adapik\CMS\CMSBase;
 use Adapik\CMS\Exception\FormatException;
+use Adapik\CMS\Interfaces\CMSInterface;
 use Exception;
 use Falseclock\AdvancedCMS\Exception\SignedDataValidationException;
 use FG\ASN1\ExplicitlyTaggedObject;
@@ -29,14 +31,16 @@ use FG\ASN1\Universal\Sequence;
 class SignedData extends \Adapik\CMS\SignedData
 {
     const OID_SIGNED_DATA = "1.2.840.113549.1.7.2";
+
     /**
      * Overriding parent method to return self instance
      *
      * @param string $content
      * @return SignedData
      * @throws FormatException
+     * @inheritdoc
      */
-    public static function createFromContent(string $content): CMSBase
+    public static function createFromContent(string $content): CMSInterface
     {
         return new self(self::makeFromContent($content, \Adapik\CMS\Maps\SignedData::class, Sequence::class));
     }
@@ -111,12 +115,15 @@ class SignedData extends \Adapik\CMS\SignedData
             throw new SignedDataValidationException("No electronic content present in SignedData");
         }
 
-        //$signerInfos = $this->getSignedDataContent()->getSignerInfoSet();
-        //$signersCertificates = $this->getCertificatesAndCRLs();
-    }
+        $signerInfos = $this->getSignedDataContent()->getSignerInfoSet();
+        $signersCertificates = $this->getSignedDataContent()->getCertificateSet();
 
-    private function getCertificatesAndCRLs() {
+        foreach ($signerInfos as $signer) {
+            // Get signer certificate
+            $signerCertificate = $this->getSignerCertificate($signersCertificates, $signer);
 
+            $this->verifyCertificateChain($signerCertificate);
+        }
     }
 
     /**
@@ -150,5 +157,29 @@ class SignedData extends \Adapik\CMS\SignedData
                 throw new SignedDataValidationException("Hash algorithm used in SignedData not registered system-wide");
             }
         }
+    }
+
+    /**
+     * Actually certificates stored in the same order as signatures, but who know how CMS was created and
+     * what is the order was used
+     * @throws SignedDataValidationException
+     * @throws Exception
+     */
+    private function getSignerCertificate(array $certificates, SignerInfo $signerInfo): Certificate
+    {
+        $signerCertificateSerialNumber = $signerInfo->getIssuerAndSerialNumber()->getSerialNumber();
+
+        foreach ($certificates as $certificate) {
+            if ($certificate->getSerial() === $signerCertificateSerialNumber) {
+                return $certificate;
+            }
+        }
+        throw new SignedDataValidationException("Can't find certificate related to sign");
+    }
+
+    public function verifyCertificateChain(Certificate $certificate)
+    {
+        // 1. Verifies digital signature of x509 certificate against a public key
+
     }
 }

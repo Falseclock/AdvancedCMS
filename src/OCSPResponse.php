@@ -13,6 +13,7 @@ namespace Falseclock\AdvancedCMS;
 use Adapik\CMS\BasicOCSPResponse;
 use Adapik\CMS\CMSBase;
 use Adapik\CMS\Exception\FormatException;
+use Adapik\CMS\Interfaces\CMSInterface;
 use FG\ASN1\Universal\Sequence;
 
 /**
@@ -35,7 +36,7 @@ class OCSPResponse extends CMSBase
      * @return OCSPResponse
      * @throws FormatException
      */
-    public static function createFromContent(string $content): CMSBase
+    public static function createFromContent(string $content): CMSInterface
     {
         return new self(self::makeFromContent($content, Maps\OCSPResponse::class, Sequence::class));
     }

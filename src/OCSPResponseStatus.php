@@ -12,6 +12,7 @@ namespace Falseclock\AdvancedCMS;
 
 use Adapik\CMS\CMSBase;
 use Adapik\CMS\Exception\FormatException;
+use Adapik\CMS\Interfaces\CMSInterface;
 use FG\ASN1\Universal\Enumerated;
 
 /**
@@ -32,7 +33,7 @@ class OCSPResponseStatus extends CMSBase
      * @return OCSPResponseStatus
      * @throws FormatException
      */
-    public static function createFromContent(string $content): CMSBase
+    public static function createFromContent(string $content): CMSInterface
     {
         return new self(self::makeFromContent($content, Maps\OCSPResponseStatus::class, Enumerated::class));
     }

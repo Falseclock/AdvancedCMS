@@ -19,6 +19,7 @@ use Falseclock\AdvancedCMS\SignerInfo;
 use Falseclock\AdvancedCMS\UnsignedAttributes;
 use FG\ASN1\Exception\ParserException;
 use FG\ASN1\Universal\Sequence;
+use MP\Base\DBPool;
 
 class SignedDataTest extends MainTest
 {
@@ -79,6 +80,25 @@ class SignedDataTest extends MainTest
     {
         $signedData = SignedData::createFromContent(base64_decode($this->DoubleSignOCSPAndTSPAndData()));
 
+        $cmsFile = tempnam(sys_get_temp_dir(), 'CMS');
+        $this->unlinkOnShutDown($cmsFile);
+        file_put_contents($cmsFile, $signedData->getBase64());
+
+        foreach ($signedData->getSignedDataContent()->getCertificateSet() as $certificate) {
+            $signerCertificateFile = tempnam(sys_get_temp_dir(), 'CRT');
+            $this->unlinkOnShutDown($signerCertificateFile);
+            file_put_contents($cmsFile, $certificate->getBase64());
+        }
+
         $signedData->verify();
+    }
+
+    /**
+     * @param string $file
+     */
+    private function unlinkOnShutDown(string $file) {
+        register_shutdown_function(function() use ($file) {
+            @unlink($file);
+        });
     }
 }

@@ -12,6 +12,7 @@ namespace Falseclock\AdvancedCMS;
 
 use Adapik\CMS\CMSBase;
 use Adapik\CMS\Exception\FormatException;
+use Adapik\CMS\Interfaces\CMSInterface;
 use Adapik\CMS\UnsignedAttribute;
 use Exception;
 use FG\ASN1\Exception\ParserException;
@@ -33,7 +34,7 @@ class SignerInfo extends \Adapik\CMS\SignerInfo
      * @return SignerInfo
      * @throws FormatException
      */
-    public static function createFromContent(string $content): CMSBase
+    public static function createFromContent(string $content): CMSInterface
     {
         return new self(self::makeFromContent($content, \Adapik\CMS\Maps\SignerInfo::class, Sequence::class));
     }

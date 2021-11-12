@@ -12,6 +12,7 @@ namespace Falseclock\AdvancedCMS;
 
 use Adapik\CMS\CMSBase;
 use Adapik\CMS\Exception\FormatException;
+use Adapik\CMS\Interfaces\CMSInterface;
 use FG\ASN1\Universal\ObjectIdentifier;
 use FG\ASN1\Universal\OctetString;
 use FG\ASN1\Universal\Sequence;
@@ -34,7 +35,7 @@ class ResponseBytes extends CMSBase
      * @return ResponseBytes
      * @throws FormatException
      */
-    public static function createFromContent(string $content): CMSBase
+    public static function createFromContent(string $content): CMSInterface
     {
         return new self(self::makeFromContent($content, Maps\ResponseBytes::class, Sequence::class));
     }
