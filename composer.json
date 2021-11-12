@@ -31,9 +31,10 @@
     "openssl"
   ],
   "require": {
-    "php": ">=7.2",
+    "php": ">=7.4",
     "adapik/phpasn1": "^2.3",
-    "adapik/cms": "^0.2.1"
+    "adapik/cms": "^0.2.1",
+    "ext-openssl": "*"
   },
   "require-dev": {
     "phpunit/phpunit": "^9.5.10",

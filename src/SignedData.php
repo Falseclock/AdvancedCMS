@@ -14,6 +14,7 @@ namespace Falseclock\AdvancedCMS;
 use Adapik\CMS\Algorithm;
 use Adapik\CMS\Exception\FormatException;
 use Adapik\CMS\Interfaces\CMSInterface;
+use Adapik\CMS\PEMConverter;
 use DateTime;
 use Exception;
 use Falseclock\AdvancedCMS\Exception\SignedDataValidationException;
@@ -30,6 +31,8 @@ use FG\ASN1\Universal\Sequence;
 class SignedData extends \Adapik\CMS\SignedData
 {
     const OID_SIGNED_DATA = "1.2.840.113549.1.7.2";
+    /** @var Certificate[] */
+    protected $intermediateСertificates = [];
 
     /**
      * Overriding parent method to return self instance
@@ -99,12 +102,33 @@ class SignedData extends \Adapik\CMS\SignedData
     }
 
     /**
+     * Add any certificate for further chain check
+     * @param Certificate $certificate
+     * @return $this
+     * @throws Exception
+     */
+    public function addIntermediateCertificate(Certificate $certificate): SignedData
+    {
+        $this->intermediateСertificates[$certificate->getSubjectKeyIdentifier()] = $certificate;
+
+        return $this;
+    }
+
+    /**
      * @return Verification[]
      * @throws Exception
      * @throws FormatException
      */
     public function verify(): array
     {
+        //--------------------------------------------------------------------
+        foreach (["/tests/fixtures/PKI-intermediate.cer", "/tests/fixtures/PKI-ca.cer"] as $file) {
+            $content = file_get_contents($_SERVER["PWD"] . $file);
+
+            $this->addIntermediateCertificate(Certificate::createFromContent($content));
+        }
+        //--------------------------------------------------------------------
+
         $cmsContentTypeOid = $this->getTypeOid();
         $verifications = [];
 
@@ -125,14 +149,14 @@ class SignedData extends \Adapik\CMS\SignedData
             $signDate = DateTime::createFromFormat('Y-m-d\TH:i:sP', $signer->getSigningTime()->__toString());
 
             // Remember, we are in a cycle, cause several certificate checks will be performed
-            $verifications[] =  $signerCertificate->verifyDate($signDate);
+            $verifications[] = $signerCertificate->verifyDate($signDate);
 
             // No need to check further
             if (!end($verifications)->isVerified()) {
                 return $verifications;
             }
 
-            $this->verifyCertificateChain($signerCertificate);
+            $this->verifyCertificateChain($signerCertificate, $signDate);
         }
 
         return $verifications;
@@ -193,9 +217,38 @@ class SignedData extends \Adapik\CMS\SignedData
         throw new SignedDataValidationException("Can't find certificate related to sign");
     }
 
-    public function verifyCertificateChain(Certificate $certificate)
+    /**
+     * @param Certificate $certificate
+     * @param DateTime|null $subjectDate
+     * @return Verification
+     * @throws Exception
+     */
+    public function verifyCertificateChain(Certificate $certificate, DateTime $subjectDate = null): Verification
     {
-        // 1. Verifies digital signature of x509 certificate against a public key
+        // We have to load intermediate certificates before checking
+        if (!isset($this->intermediateСertificates[$certificate->getAuthorityKeyIdentifier()])) {
+            return new Verification(Verification::CRT_INTERMEDIATE_NOT_FOUND, null, $certificate);
+        }
 
+        $issuerCertificate = $this->intermediateСertificates[$certificate->getAuthorityKeyIdentifier()];
+        $issuerPEM = PEMConverter::toPEM($issuerCertificate->getPublicKey());
+        // TODO: fix double line brake in main library
+        $issuerPEM = preg_replace("/\r\n\r\n/", "\r\n", $issuerPEM);
+        $issuerPublicKey = openssl_pkey_get_public($issuerPEM);
+
+        // 1. Verify digital signature of x509 certificate against an issuer's public key
+        $verify = openssl_verify($certificate->getTBSCertificate()->getBinary(), $certificate->getSignatureValue(), $issuerPublicKey, OPENSSL_ALGO_SHA256);
+
+        if ($verify !== 1) {
+            return new Verification(Verification::CRT_NOT_VALID_SIGNATURE, false, $certificate);
+        }
+
+        // 2. Verify issue date
+        $verify = $issuerCertificate->verifyDate($subjectDate);
+        if ($verify->isVerified() !== true) {
+            return $verify;
+        }
+
+        return new Verification("Certificate chain verified", true);
     }
 }

@@ -15,8 +15,10 @@ namespace Falseclock\AdvancedCMS;
 class Verification
 {
     public const CRT_NOT_VALID_AFTER = "Certificate already expired";
-    public const CRT_NOT_VALID_BEFORE = "Certificate not valid";
+    public const CRT_NOT_VALID_BEFORE = "Certificate not valid yet";
     public const CRT_DATE_VALID = "Certificate date valid";
+    public const CRT_INTERMEDIATE_NOT_FOUND = "Intermediate certificate not found";
+    public const CRT_NOT_VALID_SIGNATURE = "Certificate signature not valid";
 
     /** @var string Name of verification */
     protected $name;

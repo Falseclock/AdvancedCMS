@@ -17,6 +17,7 @@ use Adapik\CMS\Exception\FormatException;
 use Adapik\CMS\Interfaces\CMSInterface;
 use DateTime;
 use Exception;
+use FG\ASN1\Exception\ParserException;
 use FG\ASN1\Universal\Sequence;
 
 class Certificate extends \Adapik\CMS\Certificate
@@ -41,8 +42,7 @@ class Certificate extends \Adapik\CMS\Certificate
      * @return Verification
      * @throws Exception
      */
-    public function
-    verifyDate(?DateTime $subjectDate = null): Verification
+    public function verifyDate(?DateTime $subjectDate = null): Verification
     {
         // Если нам не передали дату, то мы должны проверить на текущую дату
         if (is_null($subjectDate)) {
@@ -63,5 +63,15 @@ class Certificate extends \Adapik\CMS\Certificate
         }
 
         return new Verification(Verification::CRT_DATE_VALID, true);
+    }
+
+    /**
+     * Get Signature binary value without leading zeroes
+     * @return string
+     * @throws ParserException
+     */
+    public function getSignatureValue(): string
+    {
+        return substr($this->getSignature()->getBinaryContent(), 1);
     }
 }
