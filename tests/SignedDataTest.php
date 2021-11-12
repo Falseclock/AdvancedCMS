@@ -11,6 +11,7 @@ declare(strict_types=1);
 namespace Falseclock\AdvancedCMS\Test;
 
 use Adapik\CMS\Exception\FormatException;
+use Adapik\CMS\PEMConverter;
 use Exception;
 use Falseclock\AdvancedCMS\EncapsulatedContentInfo;
 use Falseclock\AdvancedCMS\SignedData;
@@ -78,16 +79,16 @@ class SignedDataTest extends MainTest
      */
     public function testVerify()
     {
-        $signedData = SignedData::createFromContent(base64_decode($this->DoubleSignOCSPAndTSPAndData()));
+        $signedData = SignedData::createFromContent($this->DoubleSignOCSPAndTSPAndData());
 
         $cmsFile = tempnam(sys_get_temp_dir(), 'CMS');
         $this->unlinkOnShutDown($cmsFile);
-        file_put_contents($cmsFile, $signedData->getBase64());
+        file_put_contents($cmsFile, PEMConverter::toPEM($signedData));
 
         foreach ($signedData->getSignedDataContent()->getCertificateSet() as $certificate) {
             $signerCertificateFile = tempnam(sys_get_temp_dir(), 'CRT');
             $this->unlinkOnShutDown($signerCertificateFile);
-            file_put_contents($cmsFile, $certificate->getBase64());
+            file_put_contents($signerCertificateFile, PEMConverter::toPEM($certificate));
         }
 
         $signedData->verify();

@@ -12,10 +12,9 @@
 namespace Falseclock\AdvancedCMS;
 
 use Adapik\CMS\Algorithm;
-use Adapik\CMS\Certificate;
-use Adapik\CMS\CMSBase;
 use Adapik\CMS\Exception\FormatException;
 use Adapik\CMS\Interfaces\CMSInterface;
+use DateTime;
 use Exception;
 use Falseclock\AdvancedCMS\Exception\SignedDataValidationException;
 use FG\ASN1\ExplicitlyTaggedObject;
@@ -100,12 +99,14 @@ class SignedData extends \Adapik\CMS\SignedData
     }
 
     /**
-     * @throws FormatException
+     * @return Verification[]
      * @throws Exception
+     * @throws FormatException
      */
-    public function verify()
+    public function verify(): array
     {
         $cmsContentTypeOid = $this->getTypeOid();
+        $verifications = [];
 
         // 1. Check all Digest Algorithms inside
         $this->checkAlgorithms();
@@ -121,9 +122,20 @@ class SignedData extends \Adapik\CMS\SignedData
         foreach ($signerInfos as $signer) {
             // Get signer certificate
             $signerCertificate = $this->getSignerCertificate($signersCertificates, $signer);
+            $signDate = DateTime::createFromFormat('Y-m-d\TH:i:sP', $signer->getSigningTime()->__toString());
+
+            // Remember, we are in a cycle, cause several certificate checks will be performed
+            $verifications[] =  $signerCertificate->verifyDate($signDate);
+
+            // No need to check further
+            if (!end($verifications)->isVerified()) {
+                return $verifications;
+            }
 
             $this->verifyCertificateChain($signerCertificate);
         }
+
+        return $verifications;
     }
 
     /**
@@ -162,6 +174,10 @@ class SignedData extends \Adapik\CMS\SignedData
     /**
      * Actually certificates stored in the same order as signatures, but who know how CMS was created and
      * what is the order was used
+     * @param array $certificates
+     * @param SignerInfo $signerInfo
+     * @return Certificate|CMSInterface
+     * @throws FormatException
      * @throws SignedDataValidationException
      * @throws Exception
      */
@@ -171,7 +187,7 @@ class SignedData extends \Adapik\CMS\SignedData
 
         foreach ($certificates as $certificate) {
             if ($certificate->getSerial() === $signerCertificateSerialNumber) {
-                return $certificate;
+                return Certificate::createFromContent($certificate->getBinary());
             }
         }
         throw new SignedDataValidationException("Can't find certificate related to sign");
