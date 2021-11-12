@@ -102,19 +102,6 @@ class SignedData extends \Adapik\CMS\SignedData
     }
 
     /**
-     * Add any certificate for further chain check
-     * @param Certificate $certificate
-     * @return $this
-     * @throws Exception
-     */
-    public function addIntermediateCertificate(Certificate $certificate): SignedData
-    {
-        $this->intermediateСertificates[$certificate->getSubjectKeyIdentifier()] = $certificate;
-
-        return $this;
-    }
-
-    /**
      * @return Verification[]
      * @throws Exception
      * @throws FormatException
@@ -160,6 +147,19 @@ class SignedData extends \Adapik\CMS\SignedData
         }
 
         return $verifications;
+    }
+
+    /**
+     * Add any certificate for further chain check
+     * @param Certificate $certificate
+     * @return $this
+     * @throws Exception
+     */
+    public function addIntermediateCertificate(Certificate $certificate): SignedData
+    {
+        $this->intermediateСertificates[$certificate->getSubjectKeyIdentifier()] = $certificate;
+
+        return $this;
     }
 
     /**
@@ -237,7 +237,10 @@ class SignedData extends \Adapik\CMS\SignedData
         $issuerPublicKey = openssl_pkey_get_public($issuerPEM);
 
         // 1. Verify digital signature of x509 certificate against an issuer's public key
-        $verify = openssl_verify($certificate->getTBSCertificate()->getBinary(), $certificate->getSignatureValue(), $issuerPublicKey, OPENSSL_ALGO_SHA256);
+        $sslData = $certificate->getTBSCertificate()->getBinary();
+        $signature = $certificate->getSignatureValue();
+        $hashAlgorithm = AlgorithmEncryption::byOid($certificate->getSignatureAlgorithm()->getAlgorithmOid());
+        $verify = openssl_verify($sslData, $signature, $issuerPublicKey, $hashAlgorithm);
 
         if ($verify !== 1) {
             return new Verification(Verification::CRT_NOT_VALID_SIGNATURE, false, $certificate);
