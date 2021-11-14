@@ -21,6 +21,7 @@ class Verification
     public const CRT_NOT_VALID_SIGNATURE = "Certificate signature not valid";
     public const CRT_HAS_NO_KEY_USAGE = "Certificate does not have such key usage";
     public const SIGN_HAS_NO_TST_INFO = "Sign does not have independent TSP";
+    public const TST_INFO_CANT_BE_VERIFIED = "tSTInfo not verified";
 
     /** @var string Name of verification */
     protected $name;

@@ -163,7 +163,7 @@ class SignedData extends \Adapik\CMS\SignedData
             if ($cmsContentTypeOid === self::OID_DATA) {
                 // Check key usage for Digital Sign
                 // Проверяем что нам подписали сертификатом с возможностью подписи
-                if (!$signerCertificate->hasKeyUsage(KeyUsage::DIGITAL_SIGNATURE)) {
+                if (!$signerCertificate->getKeyUsage()->hasDigitalSignature()) {
                     $verifications[] = new Verification(Verification::CRT_HAS_NO_KEY_USAGE, false, $signerCertificate);
                 }
                 $verifications[] = new Verification("Certificate digital signature usage verified", true);
@@ -176,8 +176,12 @@ class SignedData extends \Adapik\CMS\SignedData
                 } else {
                     $tstInfo = $this->getAndVerifyTstInfo($timeStampToken);
                     if (is_null($tstInfo)) {
-
+                        $verifications[] = new Verification(Verification::TST_INFO_CANT_BE_VERIFIED, false, $timeStampToken);
                     }
+
+                    // Проверяем, время действия сертификата на основе подписанной метки времени, а не на метку
+                    // времени в SignerInfo как это может быть время компьютера пользователя, которое может быть ошибочным
+
                 }
             }
         }
@@ -196,18 +200,6 @@ class SignedData extends \Adapik\CMS\SignedData
         $this->intermediateCertificates[$certificate->getSubjectKeyIdentifier()] = $certificate;
 
         return $this;
-    }
-
-    /**
-     * Get CMS OID type
-     * @return string
-     */
-    public function getTypeOid(): string
-    {
-        /** @var ObjectIdentifier $type */
-        $type = $this->object->getChildren()[0];
-
-        return $type->__toString();
     }
 
     /**
@@ -289,7 +281,7 @@ class SignedData extends \Adapik\CMS\SignedData
         }
 
         // 3. check issuer certificate sign certificate usage
-        if (!$issuerCertificate->hasKeyUsage(KeyUsage::KEY_CERT_SIGN)) {
+        if (!$issuerCertificate->getKeyUsage()->hasKeyCertSign()) {
             return new Verification(Verification::CRT_HAS_NO_KEY_USAGE, false);
         }
 
@@ -320,5 +312,17 @@ class SignedData extends \Adapik\CMS\SignedData
         $binary = $timeStampTokenCMS->getSignedDataContent()->getEncapsulatedContentInfo()->getEContent()->getBinaryContent();
 
         return TSTInfo::createFromContent($binary);
+    }
+
+    /**
+     * Get CMS OID type
+     * @return string
+     */
+    public function getTypeOid(): string
+    {
+        /** @var ObjectIdentifier $type */
+        $type = $this->object->getChildren()[0];
+
+        return $type->__toString();
     }
 }

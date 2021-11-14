@@ -17,7 +17,6 @@ use Adapik\CMS\Exception\FormatException;
 use Adapik\CMS\Interfaces\CMSInterface;
 use DateTime;
 use Exception;
-use FG\ASN1\ASN1ObjectInterface;
 use FG\ASN1\Exception\ParserException;
 use FG\ASN1\Universal\BitString;
 use FG\ASN1\Universal\Sequence;
@@ -97,38 +96,14 @@ class Certificate extends \Adapik\CMS\Certificate
     }
 
     /**
-     *
-     * @param int $keyUsage
-     * @return bool
+     * @return BitString|CMSInterface
      * @throws ParserException
-     * @throws Exception
-     * @see KeyUsage
+     * @throws FormatException
      */
-    public function hasKeyUsage(int $keyUsage): bool
-    {
-        $value = $this->getKeyUsage();
-        if (is_null($value)) {
-            throw new Exception("Certificate does not have any KeyUsage");
-        }
-
-        $usage = str_split(base_convert($value->getStringValue(), 16, 2));
-
-        foreach ($usage as $index => $value) {
-            if ($index == $keyUsage && (int)$value === 1) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @return BitString|ASN1ObjectInterface
-     * @throws ParserException
-     */
-    public function getKeyUsage(): ?BitString
+    public function getKeyUsage(): ?KeyUsage
     {
         $usage = $this->getExtension(self::OID_EXTENSION_KEY_USAGE);
-        return $usage ? $usage->getExtensionValue() : null;
+
+        return $usage ? KeyUsage::createFromContent($usage->getExtensionValue()->getBinary()) : null;
     }
 }
