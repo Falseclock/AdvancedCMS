@@ -15,6 +15,7 @@ use Adapik\CMS\Algorithm;
 use Adapik\CMS\Exception\FormatException;
 use Adapik\CMS\Interfaces\CMSInterface;
 use Adapik\CMS\PEMConverter;
+use Adapik\CMS\TSTInfo;
 use DateTime;
 use Exception;
 use Falseclock\AdvancedCMS\Exception\SignedDataValidationException;
@@ -31,7 +32,7 @@ use FG\ASN1\Universal\Sequence;
 class SignedData extends \Adapik\CMS\SignedData
 {
     public const OID_TST_INFO = "1.2.840.113549.1.9.16.1.4";
-    public const OID_SIGNED_DATA = "1.2.840.113549.1.7.2";
+    public const OID_DATA = "1.2.840.113549.1.7.1";
 
     /** @var Certificate[] */
     protected $intermediateCertificates = [];
@@ -108,7 +109,7 @@ class SignedData extends \Adapik\CMS\SignedData
      * @throws Exception
      * @throws FormatException
      */
-    public function verify(): array
+    public function verify(string $data = null): array
     {
         //--------------------------------------------------------------------
         foreach (["/tests/fixtures/PKI-intermediate.cer", "/tests/fixtures/PKI-ca.cer"] as $file) {
@@ -118,16 +119,18 @@ class SignedData extends \Adapik\CMS\SignedData
         }
         //--------------------------------------------------------------------
 
-        $cmsContentTypeOid = $this->getTypeOid();
+        $cmsContentTypeOid = $this->getSignedDataContent()->getEncapsulatedContentInfo()->getContentType();
         $verifications = [];
 
         // 1. Check all Digest Algorithms inside
         $this->checkAlgorithms();
 
         // 2. Check signed data exist
-        if (is_null($this->getSignedDataContent()->getEncapsulatedContentInfo()->getEContent())) {
-            throw new SignedDataValidationException("No electronic content present in SignedData");
+        if (is_null($data) && is_null($this->getSignedDataContent()->getEncapsulatedContentInfo()->getEContent())) {
+            throw new SignedDataValidationException("No electronic content provided or present in SignedData");
         }
+
+        //$data ?= $this->getSignedDataContent()->getEncapsulatedContentInfo()->getEContent()->getBinaryContent();
 
         $signerInfos = $this->getSignedDataContent()->getSignerInfoSet();
         $signersCertificates = $this->getSignedDataContent()->getCertificateSet();
@@ -154,16 +157,28 @@ class SignedData extends \Adapik\CMS\SignedData
                     $verifications[] = new Verification(Verification::CRT_HAS_NO_KEY_USAGE, false, $signerCertificate);
                     return $verifications;
                 }
-                $verifications[] = new Verification("Certificate tSTInfo usage verified", true, Certificate::OID_EKU_TIME_STAMPING);
+                $verifications[] = new Verification("Certificate tSTInfo usage verified", true);
             }
 
-            if ($cmsContentTypeOid === self::OID_SIGNED_DATA) {
+            if ($cmsContentTypeOid === self::OID_DATA) {
                 // Check key usage for Digital Sign
                 // Проверяем что нам подписали сертификатом с возможностью подписи
-               if (!$signerCertificate->hasKeyUsage(KeyUsage::DIGITAL_SIGNATURE)) {
-                   $verifications[] = new Verification(Verification::CRT_HAS_NO_KEY_USAGE, false, $signerCertificate);
-               }
+                if (!$signerCertificate->hasKeyUsage(KeyUsage::DIGITAL_SIGNATURE)) {
+                    $verifications[] = new Verification(Verification::CRT_HAS_NO_KEY_USAGE, false, $signerCertificate);
+                }
                 $verifications[] = new Verification("Certificate digital signature usage verified", true);
+
+                // We do no care provided TSP or NOT, but should check such case
+                // Требование метки не всегда обязательное, но то что она отсутствует - должны упомянуть
+                $timeStampToken = $signer->getUnsignedAttributes()->getTimeStampToken();
+                if (is_null($timeStampToken)) {
+                    $verifications[] = new Verification(Verification::SIGN_HAS_NO_TST_INFO, null);
+                } else {
+                    $tstInfo = $this->getAndVerifyTstInfo($timeStampToken);
+                    if (is_null($tstInfo)) {
+
+                    }
+                }
             }
         }
 
@@ -273,9 +288,12 @@ class SignedData extends \Adapik\CMS\SignedData
             return $verify;
         }
 
-        // TODO: check cert sign usage
+        // 3. check issuer certificate sign certificate usage
+        if (!$issuerCertificate->hasKeyUsage(KeyUsage::KEY_CERT_SIGN)) {
+            return new Verification(Verification::CRT_HAS_NO_KEY_USAGE, false);
+        }
 
-        // 3. Verify parent's certificate if it is not CA
+        // 4. Verify parent's certificate if it is not CA
         if (!$issuerCertificate->isCa()) {
             $verify = $this->verifyCertificateChain($issuerCertificate, $subjectDate);
             if ($verify->isVerified() !== true) {
@@ -284,5 +302,23 @@ class SignedData extends \Adapik\CMS\SignedData
         }
 
         return new Verification("Certificate chain verified", true);
+    }
+
+    /**
+     * @param TimeStampToken $timeStampToken
+     * @return ?TSTInfo
+     * @throws FormatException
+     * @throws Exception
+     */
+    private function getAndVerifyTstInfo(TimeStampToken $timeStampToken): ?TSTInfo
+    {
+        $timeStampTokenCMS = $timeStampToken->getSignedData();
+        if (!$timeStampTokenCMS->verify()) {
+            return null;
+        }
+
+        $binary = $timeStampTokenCMS->getSignedDataContent()->getEncapsulatedContentInfo()->getEContent()->getBinaryContent();
+
+        return TSTInfo::createFromContent($binary);
     }
 }

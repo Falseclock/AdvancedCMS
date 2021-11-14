@@ -51,4 +51,15 @@ class TimeStampToken extends \Adapik\CMS\TimeStampToken
             ]
         );
     }
+
+    /**
+     * Override parent to return self instance and avoid polymorphs
+     * @return SignedData
+     */
+    public function getSignedData(): SignedData
+    {
+        $child = $this->object->getChildren()[1]->getChildren()[0];
+
+        return new SignedData($child);
+    }
 }
