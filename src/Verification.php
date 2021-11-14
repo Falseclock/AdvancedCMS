@@ -22,6 +22,12 @@ class Verification
     public const CRT_HAS_NO_KEY_USAGE = "Certificate does not have such key usage";
     public const SIGN_HAS_NO_TST_INFO = "Sign does not have independent TSP";
     public const TST_INFO_CANT_BE_VERIFIED = "tSTInfo not verified";
+    public const SIGN_HAS_NO_REVOCATION_VALUES = "Sign has no revocationValues";
+    public const REV_HAS_NO_OCSP_RESPONSE = "BasicOCSPResponse not found in revocationValues";
+    public const OCSP_HAS_NO_REQUIRED_CERTIFICATE = "OCSP response does not have check for required certificate";
+    public const OCSP_STATUS_IS_REVOKED = "Certificate is revoked";
+    public const OCSP_STATUS_IS_UNKNOWN = "Certificate status is unknown";
+    public const OCSP_STATUS_EXPIRED = "Too long time distance between OCSP check and sign date";
 
     /** @var string Name of verification */
     protected $name;

@@ -12,6 +12,7 @@
 namespace Falseclock\AdvancedCMS;
 
 use Adapik\CMS\Algorithm;
+use Adapik\CMS\BasicOCSPResponse;
 use Adapik\CMS\Exception\FormatException;
 use Adapik\CMS\Interfaces\CMSInterface;
 use Adapik\CMS\PEMConverter;
@@ -19,8 +20,8 @@ use Adapik\CMS\TSTInfo;
 use DateTime;
 use Exception;
 use Falseclock\AdvancedCMS\Exception\SignedDataValidationException;
+use FG\ASN1\Exception\ParserException;
 use FG\ASN1\ExplicitlyTaggedObject;
-use FG\ASN1\Universal\ObjectIdentifier;
 use FG\ASN1\Universal\Sequence;
 
 /**
@@ -33,7 +34,8 @@ class SignedData extends \Adapik\CMS\SignedData
 {
     public const OID_TST_INFO = "1.2.840.113549.1.9.16.1.4";
     public const OID_DATA = "1.2.840.113549.1.7.1";
-
+    public const MAX_DELTA_FOR_OCSP_CHECK = 60 * 3;
+    public const TIME_FORMAT = 'Y-m-d\TH:i:sP';
     /** @var Certificate[] */
     protected $intermediateCertificates = [];
 
@@ -109,7 +111,7 @@ class SignedData extends \Adapik\CMS\SignedData
      * @throws Exception
      * @throws FormatException
      */
-    public function verify(string $data = null): array
+    public function verify(string $data = null, int $timeDelta = self::MAX_DELTA_FOR_OCSP_CHECK): array
     {
         //--------------------------------------------------------------------
         foreach (["/tests/fixtures/PKI-intermediate.cer", "/tests/fixtures/PKI-ca.cer"] as $file) {
@@ -138,7 +140,7 @@ class SignedData extends \Adapik\CMS\SignedData
         foreach ($signerInfos as $signer) {
             // Get signer certificate
             $signerCertificate = $this->getSignerCertificate($signersCertificates, $signer);
-            $signDate = DateTime::createFromFormat('Y-m-d\TH:i:sP', $signer->getSigningTime()->__toString());
+            $signDate = DateTime::createFromFormat(self::TIME_FORMAT, $signer->getSigningTime()->__toString());
 
             // Remember, we are in a cycle, cause several certificate checks will be performed
             $verifications[] = $signerCertificate->verifyDate($signDate);
@@ -171,6 +173,8 @@ class SignedData extends \Adapik\CMS\SignedData
                 // We do no care provided TSP or NOT, but should check such case
                 // Требование метки не всегда обязательное, но то что она отсутствует - должны упомянуть
                 $timeStampToken = $signer->getUnsignedAttributes()->getTimeStampToken();
+                $tstInfoDateTime = null;
+
                 if (is_null($timeStampToken)) {
                     $verifications[] = new Verification(Verification::SIGN_HAS_NO_TST_INFO, null);
                 } else {
@@ -179,9 +183,29 @@ class SignedData extends \Adapik\CMS\SignedData
                         $verifications[] = new Verification(Verification::TST_INFO_CANT_BE_VERIFIED, false, $timeStampToken);
                     }
 
+                    // Check certificate issue date based on TST and not against SignerInfo, cause sometimes
+                    // it is time on computer where signature was created
                     // Проверяем, время действия сертификата на основе подписанной метки времени, а не на метку
                     // времени в SignerInfo как это может быть время компьютера пользователя, которое может быть ошибочным
+                    $tstInfoDateTime = DateTime::createFromFormat(self::TIME_FORMAT, $tstInfo->getGenTime()->__toString());
+                    $verifications[] = $signerCertificate->verifyDate($tstInfoDateTime);
+                }
 
+                $revocationValues = $signer->getUnsignedAttributes()->getRevocationValues();
+                if (is_null($revocationValues)) {
+                    $verifications[] = new Verification(Verification::SIGN_HAS_NO_REVOCATION_VALUES, null);
+                } else {
+                    $basicOCSPResponse = $revocationValues->getBasicOCSPResponse();
+
+                    if (is_null($basicOCSPResponse)) {
+                        $verifications[] = new Verification(Verification::REV_HAS_NO_OCSP_RESPONSE, null);
+                    } else {
+
+                        // If TSP not provided there is only one option - get signing time from signature
+                        $date = $tstInfoDateTime ?? DateTime::createFromFormat(self::TIME_FORMAT, $signer->getSigningTime());
+
+                        $aaa = $this->verifyBasicOCSPResponse($basicOCSPResponse, $signerCertificate, $date, $timeDelta);
+                    }
                 }
             }
         }
@@ -315,14 +339,62 @@ class SignedData extends \Adapik\CMS\SignedData
     }
 
     /**
-     * Get CMS OID type
-     * @return string
+     * @param BasicOCSPResponse $basicOCSPResponse
+     * @param Certificate $signerCertificate
+     * @param DateTime $date
+     * @param int $timeDelta
+     * @return Verification
+     * @throws ParserException
+     * @throws Exception
      */
-    public function getTypeOid(): string
+    private function verifyBasicOCSPResponse(BasicOCSPResponse $basicOCSPResponse, Certificate $signerCertificate, DateTime $date, int $timeDelta): Verification
     {
-        /** @var ObjectIdentifier $type */
-        $type = $this->object->getChildren()[0];
+        foreach ($basicOCSPResponse->getTbsResponseData()->getResponses() as $response) {
+            // Мы нашли ответ по сертификату подписанта
+            if ((string)$response->getCertID()->getSerialNumber() !== $signerCertificate->getSerial()) {
+                continue;
+            }
 
-        return $type->__toString();
+            $status = $response->getCertStatus();
+
+            if ($status->isRevoked()) {
+                return new Verification(Verification::OCSP_STATUS_IS_REVOKED, false, $signerCertificate);
+            }
+            if ($status->isUnknown()) {
+                return new Verification(Verification::OCSP_STATUS_IS_UNKNOWN, null, $signerCertificate);
+            }
+
+            $getProducedAt = DateTime::createFromFormat(self::TIME_FORMAT, (string)$basicOCSPResponse->getTbsResponseData()->getProducedAt());
+
+            // Проверка времени
+            if (abs($getProducedAt->getTimestamp() - $date->getTimestamp()) > $timeDelta) {
+                return new Verification(Verification::OCSP_STATUS_EXPIRED, null, $basicOCSPResponse);
+            }
+
+/*            // Проверяем на OCSP
+            String responderSubject = basicOCSPResponse.getResponderId().toASN1Object().getDERObject().toString();
+                    for (X509Certificate certificate : basicOCSPResponse.getCerts(Loader.getKalkanProvider().getName())) {
+
+                        String certificateSubject = CertificateVerifier.getSubjectByOid(certificate, X509Name.CN);
+
+                        if (responderSubject.contains(certificateSubject)) {
+                            CertificateVerifier certificateVerifier = new CertificateVerifier(certificate);
+
+                            if (certificateVerifier.doesNotHaveEnhancedKeyUsage(new DERObjectIdentifier("1.3.6.1.5.5.7.3.9")))
+                                return failed(String.format("Сертификат OCSP респондера '%s' не имеет возможности подписывать OCSP метки", certificateSubject));
+
+                            if (!certificateVerifier.isChainValid())
+                                return failed(String.format("Сертификат OCSP респондера '%s' не проходит проверку цепочки", certificateSubject));
+
+                            if (!basicOCSPResponse.verify(certificate.getPublicKey(), Loader.getKalkanProvider().getName()))
+                                return failed("Подпись OCSP респондера '%s' не прошла проверку по публичному ключу");
+
+                            return true;
+                        }
+                    }*/
+        }
+
+        // Нужный сертификат в OCSP ответе не найден
+        return new Verification(Verification::OCSP_HAS_NO_REQUIRED_CERTIFICATE, false, $signerCertificate);
     }
 }
