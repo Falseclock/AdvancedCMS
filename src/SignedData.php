@@ -30,9 +30,11 @@ use FG\ASN1\Universal\Sequence;
  */
 class SignedData extends \Adapik\CMS\SignedData
 {
-    const OID_SIGNED_DATA = "1.2.840.113549.1.7.2";
+    public const OID_TST_INFO = "1.2.840.113549.1.9.16.1.4";
+    public const OID_SIGNED_DATA = "1.2.840.113549.1.7.2";
+
     /** @var Certificate[] */
-    protected $intermediateСertificates = [];
+    protected $intermediateCertificates = [];
 
     /**
      * Overriding parent method to return self instance
@@ -144,6 +146,22 @@ class SignedData extends \Adapik\CMS\SignedData
             }
 
             $this->verifyCertificateChain($signerCertificate, $signDate);
+
+            // If we check tSTInfo (S/MIME Content Types), let's check required OID in KeyUsage
+            // Если мы проверяем метку времени, то надо проверить, что имеется нужный оид в KeyUsage
+            if ($cmsContentTypeOid === self::OID_TST_INFO) {
+                $verifications[] = $signerCertificate->hasExtendedKeyUsage(Certificate::OID_EKU_TIME_STAMPING);
+
+                if (!end($verifications)->isVerified()) {
+                    return $verifications;
+                }
+            }
+
+            if ($cmsContentTypeOid === self::OID_SIGNED_DATA) {
+                // Check key usage for Digital Sign
+                // Проверяем что нам подписали сертификатом с возможностью подписи
+                $verifications[] = $signerCertificate->hasKeyUsage(KeyUsage::DIGITAL_SIGNATURE);
+            }
         }
 
         return $verifications;
@@ -157,7 +175,7 @@ class SignedData extends \Adapik\CMS\SignedData
      */
     public function addIntermediateCertificate(Certificate $certificate): SignedData
     {
-        $this->intermediateСertificates[$certificate->getSubjectKeyIdentifier()] = $certificate;
+        $this->intermediateCertificates[$certificate->getSubjectKeyIdentifier()] = $certificate;
 
         return $this;
     }
@@ -226,11 +244,11 @@ class SignedData extends \Adapik\CMS\SignedData
     public function verifyCertificateChain(Certificate $certificate, DateTime $subjectDate = null): Verification
     {
         // We have to load intermediate certificates before checking
-        if (!isset($this->intermediateСertificates[$certificate->getAuthorityKeyIdentifier()])) {
+        if (!isset($this->intermediateCertificates[$certificate->getAuthorityKeyIdentifier()])) {
             return new Verification(Verification::CRT_INTERMEDIATE_NOT_FOUND, null, $certificate);
         }
 
-        $issuerCertificate = $this->intermediateСertificates[$certificate->getAuthorityKeyIdentifier()];
+        $issuerCertificate = $this->intermediateCertificates[$certificate->getAuthorityKeyIdentifier()];
         $issuerPEM = PEMConverter::toPEM($issuerCertificate->getPublicKey());
         // TODO: fix double line brake in main library
         $issuerPEM = preg_replace("/\r\n\r\n/", "\r\n", $issuerPEM);
@@ -250,6 +268,16 @@ class SignedData extends \Adapik\CMS\SignedData
         $verify = $issuerCertificate->verifyDate($subjectDate);
         if ($verify->isVerified() !== true) {
             return $verify;
+        }
+
+        // TODO: check cert sign usage
+
+        // 3. Verify parent's certificate if it is not CA
+        if (!$issuerCertificate->isCa()) {
+            $verify = $this->verifyCertificateChain($issuerCertificate, $subjectDate);
+            if ($verify->isVerified() !== true) {
+                return $verify;
+            }
         }
 
         return new Verification("Certificate chain verified", true);

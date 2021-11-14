@@ -17,11 +17,16 @@ use Adapik\CMS\Exception\FormatException;
 use Adapik\CMS\Interfaces\CMSInterface;
 use DateTime;
 use Exception;
+use FG\ASN1\ASN1ObjectInterface;
 use FG\ASN1\Exception\ParserException;
+use FG\ASN1\Universal\BitString;
 use FG\ASN1\Universal\Sequence;
 
 class Certificate extends \Adapik\CMS\Certificate
 {
+    const OID_EKU_OCSP_SIGNING = '1.3.6.1.5.5.7.3.9';
+    const OID_EKU_TIME_STAMPING = '1.3.6.1.5.5.7.3.8';
+
     /**
      * Overriding parent method to return self instance
      *
@@ -73,5 +78,50 @@ class Certificate extends \Adapik\CMS\Certificate
     public function getSignatureValue(): string
     {
         return substr($this->getSignature()->getBinaryContent(), 1);
+    }
+
+    /**
+     * @param string $oid
+     * @return Verification
+     * @throws ParserException
+     */
+    public function hasExtendedKeyUsage(string $oid): Verification
+    {
+        foreach ($this->getExtendedKeyUsage() as $value) {
+            if ($value === $oid) {
+                return new Verification("Certificate usage verified", true, $oid);
+            }
+        }
+
+        return new Verification(Verification::CRT_HAS_NO_KEY_USAGE, false, $oid);
+    }
+
+    /**
+     *
+     * @param int $keyUsage
+     * @return bool
+     * @throws ParserException
+     * @see KeyUsage
+     */
+    public function hasKeyUsage(int $keyUsage): bool
+    {
+        $usage = str_split(base_convert($this->getKeyUsage()->getStringValue(), 16, 2));
+
+        foreach ($usage as $index => $value) {
+            if ($index == $keyUsage && (int)$value === 1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return BitString|ASN1ObjectInterface
+     * @throws ParserException
+     */
+    public function getKeyUsage(): BitString
+    {
+        return $this->getExtension(self::OID_EXTENSION_KEY_USAGE)->getExtensionValue();
     }
 }

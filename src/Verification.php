@@ -19,6 +19,7 @@ class Verification
     public const CRT_DATE_VALID = "Certificate date valid";
     public const CRT_INTERMEDIATE_NOT_FOUND = "Intermediate certificate not found";
     public const CRT_NOT_VALID_SIGNATURE = "Certificate signature not valid";
+    public const CRT_HAS_NO_KEY_USAGE = "Certificate does not have such key usage";
 
     /** @var string Name of verification */
     protected $name;
