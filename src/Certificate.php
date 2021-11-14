@@ -82,18 +82,18 @@ class Certificate extends \Adapik\CMS\Certificate
 
     /**
      * @param string $oid
-     * @return Verification
+     * @return bool
      * @throws ParserException
      */
-    public function hasExtendedKeyUsage(string $oid): Verification
+    public function hasExtendedKeyUsage(string $oid): bool
     {
         foreach ($this->getExtendedKeyUsage() as $value) {
             if ($value === $oid) {
-                return new Verification("Certificate usage verified", true, $oid);
+                return true;
             }
         }
 
-        return new Verification(Verification::CRT_HAS_NO_KEY_USAGE, false, $oid);
+        return false;
     }
 
     /**

@@ -150,17 +150,20 @@ class SignedData extends \Adapik\CMS\SignedData
             // If we check tSTInfo (S/MIME Content Types), let's check required OID in KeyUsage
             // Если мы проверяем метку времени, то надо проверить, что имеется нужный оид в KeyUsage
             if ($cmsContentTypeOid === self::OID_TST_INFO) {
-                $verifications[] = $signerCertificate->hasExtendedKeyUsage(Certificate::OID_EKU_TIME_STAMPING);
-
-                if (!end($verifications)->isVerified()) {
+                if ($signerCertificate->hasExtendedKeyUsage(Certificate::OID_EKU_TIME_STAMPING)) {
+                    $verifications[] = new Verification(Verification::CRT_HAS_NO_KEY_USAGE, false, $signerCertificate);
                     return $verifications;
                 }
+                $verifications[] = new Verification("Certificate tSTInfo usage verified", true, Certificate::OID_EKU_TIME_STAMPING);
             }
 
             if ($cmsContentTypeOid === self::OID_SIGNED_DATA) {
                 // Check key usage for Digital Sign
                 // Проверяем что нам подписали сертификатом с возможностью подписи
-                $verifications[] = $signerCertificate->hasKeyUsage(KeyUsage::DIGITAL_SIGNATURE);
+               if (!$signerCertificate->hasKeyUsage(KeyUsage::DIGITAL_SIGNATURE)) {
+                   $verifications[] = new Verification(Verification::CRT_HAS_NO_KEY_USAGE, false, $signerCertificate);
+               }
+                $verifications[] = new Verification("Certificate digital signature usage verified", true);
             }
         }
 
