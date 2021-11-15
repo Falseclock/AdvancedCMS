@@ -28,6 +28,7 @@ class Verification
     public const OCSP_STATUS_IS_REVOKED = "Certificate is revoked";
     public const OCSP_STATUS_IS_UNKNOWN = "Certificate status is unknown";
     public const OCSP_STATUS_EXPIRED = "Too long time distance between OCSP check and sign date";
+    public const OCSP_NOT_VALID_SIGNATURE = "OCSP response signature not valid";
 
     /** @var string Name of verification */
     protected $name;

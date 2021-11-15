@@ -16,6 +16,7 @@ use Adapik\CMS\BasicOCSPResponse;
 use Adapik\CMS\Exception\FormatException;
 use Adapik\CMS\Interfaces\CMSInterface;
 use Adapik\CMS\PEMConverter;
+use Adapik\CMS\Subject;
 use Adapik\CMS\TSTInfo;
 use DateTime;
 use Exception;
@@ -204,9 +205,16 @@ class SignedData extends \Adapik\CMS\SignedData
                         // If TSP not provided there is only one option - get signing time from signature
                         $date = $tstInfoDateTime ?? DateTime::createFromFormat(self::TIME_FORMAT, $signer->getSigningTime());
 
-                        $aaa = $this->verifyBasicOCSPResponse($basicOCSPResponse, $signerCertificate, $date, $timeDelta);
+                        $verifications[] = $this->verifyBasicOCSPResponse($basicOCSPResponse, $signerCertificate, $date, $timeDelta);
+
+                        if (!end($verifications)->isVerified()) {
+                            return $verifications;
+                        }
                     }
                 }
+
+                // Ну и наконец проверяем подписанные данные по публичному ключу сертификата и дайджест
+
             }
         }
 
@@ -333,6 +341,8 @@ class SignedData extends \Adapik\CMS\SignedData
             return null;
         }
 
+        // TODO: verify with open_ssl
+
         $binary = $timeStampTokenCMS->getSignedDataContent()->getEncapsulatedContentInfo()->getEContent()->getBinaryContent();
 
         return TSTInfo::createFromContent($binary);
@@ -368,30 +378,50 @@ class SignedData extends \Adapik\CMS\SignedData
 
             // Проверка времени
             if (abs($getProducedAt->getTimestamp() - $date->getTimestamp()) > $timeDelta) {
-                return new Verification(Verification::OCSP_STATUS_EXPIRED, null, $basicOCSPResponse);
+                // return new Verification(Verification::OCSP_STATUS_EXPIRED, null, $basicOCSPResponse);
             }
 
-/*            // Проверяем на OCSP
-            String responderSubject = basicOCSPResponse.getResponderId().toASN1Object().getDERObject().toString();
-                    for (X509Certificate certificate : basicOCSPResponse.getCerts(Loader.getKalkanProvider().getName())) {
+            $responderSubject = new Subject($basicOCSPResponse->getTbsResponseData()->getResponderID());
 
-                        String certificateSubject = CertificateVerifier.getSubjectByOid(certificate, X509Name.CN);
+            foreach ($basicOCSPResponse->getCerts() as $certificateVerifier) {
+                $certificateVerifier = new Certificate($certificateVerifier->object);
+                $certificateSubject = $certificateVerifier->getSubject();
 
-                        if (responderSubject.contains(certificateSubject)) {
-                            CertificateVerifier certificateVerifier = new CertificateVerifier(certificate);
+                if ($responderSubject->getCommonName() !== $certificateSubject->getCommonName())
+                    continue;
 
-                            if (certificateVerifier.doesNotHaveEnhancedKeyUsage(new DERObjectIdentifier("1.3.6.1.5.5.7.3.9")))
-                                return failed(String.format("Сертификат OCSP респондера '%s' не имеет возможности подписывать OCSP метки", certificateSubject));
+                if ($responderSubject->getSerialNumber() !== $certificateSubject->getSerialNumber())
+                    continue;
 
-                            if (!certificateVerifier.isChainValid())
-                                return failed(String.format("Сертификат OCSP респондера '%s' не проходит проверку цепочки", certificateSubject));
+                $dateVerification = $certificateVerifier->verifyDate($date);
+                if (!$dateVerification->isVerified())
+                    return $dateVerification;
 
-                            if (!basicOCSPResponse.verify(certificate.getPublicKey(), Loader.getKalkanProvider().getName()))
-                                return failed("Подпись OCSP респондера '%s' не прошла проверку по публичному ключу");
+                $chainVerification = $this->verifyCertificateChain($certificateVerifier, $date);
+                if (!$chainVerification->isVerified())
+                    return $chainVerification;
 
-                            return true;
-                        }
-                    }*/
+                if (!$certificateVerifier->hasExtendedKeyUsage(Certificate::OID_EKU_OCSP_SIGNING)) {
+                    return new Verification(Verification::CRT_HAS_NO_KEY_USAGE, false, $certificateVerifier);
+                }
+
+                $responseData = $basicOCSPResponse->getTbsResponseData()->getBinary();
+                $VerifierPEM = PEMConverter::toPEM($certificateVerifier->getPublicKey());
+                // TODO: fix double line brake in main library
+                $VerifierPEM = preg_replace("/\r\n\r\n/", "\r\n", $VerifierPEM);
+                $issuerPublicKey = openssl_pkey_get_public($VerifierPEM);
+                $hashAlgorithm = AlgorithmEncryption::byOid($certificateVerifier->getSignatureAlgorithm()->getAlgorithmOid());
+
+                $signature = $basicOCSPResponse->getSignatureValue();
+
+                $verify = openssl_verify($responseData, $signature, $issuerPublicKey, $hashAlgorithm);
+
+                if ($verify !== 1) {
+                    return new Verification(Verification::OCSP_NOT_VALID_SIGNATURE, false, $basicOCSPResponse);
+                }
+
+                return new Verification("OCSP response verified", true);
+            }
         }
 
         // Нужный сертификат в OCSP ответе не найден
