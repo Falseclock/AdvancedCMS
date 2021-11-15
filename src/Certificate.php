@@ -17,6 +17,7 @@ use Adapik\CMS\Exception\FormatException;
 use Adapik\CMS\Interfaces\CMSInterface;
 use DateTime;
 use Exception;
+use FG\ASN1\ASN1ObjectInterface;
 use FG\ASN1\Exception\ParserException;
 use FG\ASN1\Universal\BitString;
 use FG\ASN1\Universal\Sequence;
@@ -25,6 +26,17 @@ class Certificate extends \Adapik\CMS\Certificate
 {
     const OID_EKU_OCSP_SIGNING = '1.3.6.1.5.5.7.3.9';
     const OID_EKU_TIME_STAMPING = '1.3.6.1.5.5.7.3.8';
+
+    /**
+     * CMSBase constructor.
+     *
+     * @param ASN1ObjectInterface $object
+     */
+    public function __construct(ASN1ObjectInterface $object)
+    {
+        parent::__construct($object);
+        $this->object = $object;
+    }
 
     /**
      * Overriding parent method to return self instance
@@ -98,12 +110,11 @@ class Certificate extends \Adapik\CMS\Certificate
     /**
      * @return BitString|CMSInterface
      * @throws ParserException
-     * @throws FormatException
      */
     public function getKeyUsage(): ?KeyUsage
     {
         $usage = $this->getExtension(self::OID_EXTENSION_KEY_USAGE);
 
-        return $usage ? KeyUsage::createFromContent($usage->getExtensionValue()->getBinary()) : null;
+        return $usage ? new KeyUsage($usage->getExtensionValue()) : null;
     }
 }
